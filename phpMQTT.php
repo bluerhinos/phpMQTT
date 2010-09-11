@@ -65,7 +65,7 @@ class phpMQTT {
 		$this->socket = fsockopen($address, $this->port, $errno, $errstr, 60);
 		
 		stream_set_timeout($this->socket, 5);
-		stream_set_blocking($this->socket,false);
+		stream_set_blocking($this->socket,true);
 		
 		if (!$this->socket ) {
 		    error_log("fsockopen() $errno, $errstr \n");
@@ -87,7 +87,7 @@ class phpMQTT {
 
 		//No Will
 		$var = 0;
-		if($clean) $var+2;
+		if($clean) $var+=2;
 		$buffer{$i++} = chr($var);
 		//Keep alive
 		$buffer{$i++} = chr(0x00);
@@ -212,13 +212,18 @@ class phpMQTT {
 	function message($msg){
 		 	$tlen = (ord($msg{0})<<8) + ord($msg{1});
 			$topic = substr($msg,2,$tlen);
-			$msg = substr($msg,($tlen+$lenid+2));
+			$msg = substr($msg,($tlen+2));
+			$found = 0;
 			foreach($this->topics as $key=>$top){
 				if(preg_match("/^".str_replace("#",".*",str_replace("+","[^\/]*",str_replace("/","\/",$key)))."$/",$topic) ){
-					if(function_exists($top['function']))
+					if(function_exists($top['function'])){
 						call_user_func($top['function'],$topic,$msg);
+						$found = 1;
+					}
 				}
 			}
+			
+			if($this->debug && !$found) echo "msg recieved but no match in subscriptions\n";
 	}
 
 	/* proc: the processing loop for an "allways on" client */	
@@ -232,12 +237,14 @@ class phpMQTT {
 
 			if(stream_select($sockets, $w, $e, ($this->keepalive-1))){
 				if($this->debug) echo "found something\n";
+				
 				$byte = fgetc($this->socket);
 				$cmd = (int)(ord($byte)/16);
 				if($this->debug) echo "Recevid: $cmd\n";
 				
 				$multiplier = 1; 
 				$value = 0;
+				$i=0;
 				do{
 				  $digit = ord(fgetc($this->socket));
 				  $value += ($digit & 127) * $multiplier; 
@@ -255,6 +262,7 @@ class phpMQTT {
 				
 					$this->timesinceping = time();
 				}
+				
 			}else{
 				
 				
@@ -297,6 +305,16 @@ class phpMQTT {
 		$ret .= $str;
 		$i += ($len+2);
 		return $ret;
+	}
+	
+	function printstr($string){
+		$strlen = strlen($string);
+			for($j=0;$j<$strlen;$j++){
+				$num = ord($string{$j});
+				if($num > 31) 
+					$chr = $string{$j}; else $chr = " ";
+				printf("%4d: %08b : 0x%02x : %s \n",$j,$num,$num,$chr);
+			}
 	}
 }
 
