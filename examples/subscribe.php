@@ -3,8 +3,7 @@
 require("../phpMQTT.php");
 
 	
-$mqtt = new phpMQTT();
-$mqtt->broker("example.com", 1883, "PHP MQTT Client");
+$mqtt = new phpMQTT("example.com", 1883, "PHP MQTT Client");
 $mqtt->connect();
 $topics['ferries/IOW/#'] = array("qos"=>0, "function"=>"procmsg");
 $mqtt->subscribe($topics,0);

@@ -45,9 +45,8 @@ class phpMQTT {
 	public $port;				/* broker port */
 	public $clientid;			/* client id sent to brocker */
 	
-	/* constructer: not used at the moment */
-	function __construct(){
-		return true;
+	function __construct($address, $port, $clientid){
+		$this->broker($address, $port, $clientid);
 	}
 	
 	/* sets the broker details */
