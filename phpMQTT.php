@@ -151,6 +151,7 @@ class phpMQTT {
 		fwrite($this->socket, $head, 2);
 		fwrite($this->socket, $buffer, $i);
 		$string = $this->read(2);
+
 		$bytes = ord($string{1});
 		$string = $this->read($bytes);
 	}
@@ -187,7 +188,7 @@ class phpMQTT {
 		
 		$buffer .= $this->strwritestring($topic,$i);
 
-		$buffer .= $this->strwritestring($content,$i);
+		//$buffer .= $this->strwritestring($content,$i);
 
 		if($qos){
 			$id = $this->msgid++;
@@ -195,14 +196,22 @@ class phpMQTT {
 		 	$buffer{$i++} = chr($id % 256);
 		}
 		
+		$buffer .= $content;
+		$i+=strlen($content);
+		
+		
 		$head = " ";
 		$cmd = 0x30;
 		if($qos) $cmd += $qos << 1;
+		if($retain) $cmd += 1;
 
 		$head{0} = chr($cmd);		
-		$head{1} = chr($i);
+		$head .= $this->setmsglength($i);
 		
-		fwrite($this->socket, $head, 2);
+		$this->printstr($head);
+		$this->printstr($buffer);
+		
+		fwrite($this->socket, $head, strlen($head));
 		fwrite($this->socket, $buffer, $i);
 
 	}
@@ -243,12 +252,10 @@ class phpMQTT {
 				
 				$multiplier = 1; 
 				$value = 0;
-				$i=0;
 				do{
 				  $digit = ord(fgetc($this->socket));
 				  $value += ($digit & 127) * $multiplier; 
 				  $multiplier *= 128;
-				  $i++;
 				}while (($digit & 128) != 0);
 
 				$string = $this->read($value,"fetch");
@@ -291,6 +298,21 @@ class phpMQTT {
 		}while (($digit & 128) != 0);
 		
 		return $value;
+	}
+	
+	
+	/* setmsglength: */
+	function setmsglength($len){
+		$string = "";
+		do{
+		  $digit = $len % 128;
+		  $len = $len >> 7;
+		  // if there are more digits to encode, set the top bit of this digit
+		  if ( $len > 0 )
+		    $digit = ($digit | 0x80);
+		  $string .= chr($digit);
+		}while ( $len > 0 );
+		return $string;
 	}
 	
 	/* strwritestring: writes a string to a buffer */
