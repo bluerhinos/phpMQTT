@@ -44,6 +44,9 @@ class phpMQTT {
 	public $address;			/* broker address */
 	public $port;				/* broker port */
 	public $clientid;			/* client id sent to brocker */
+	public $will;				/* stores the will of the client */
+	private $username;			/* stores username */
+	private $password;			/* stores password */
 	
 	function __construct($address, $port, $clientid){
 		$this->broker($address, $port, $clientid);
@@ -58,7 +61,11 @@ class phpMQTT {
 	
 	/* connects to the broker 
 		inputs: $clean: should the client send a clean session flag */
-	function connect($clean = true){
+	function connect($clean = true, $will = NULL, $username = NULL, $password = NULL){
+		
+		if($will) $this->will = $will;
+		if($username) $this->username = $username;
+		if($password) $this->password = $password;
 		
 		$address = gethostbyname($this->address);	
 		$this->socket = fsockopen($address, $this->port, $errno, $errstr, 60);
@@ -87,6 +94,17 @@ class phpMQTT {
 		//No Will
 		$var = 0;
 		if($clean) $var+=2;
+		
+		//Add will info to header
+		if($this->will != NULL){
+			$var += 4; // Set will flag
+			$var += ($this->will['qos'] << 3); //Set will qos
+			if($this->will['retain'])	$var += 32; //Set will retain
+		}
+		
+		if($this->username != NULL) $var += 128;	//Add username to header
+		if($this->password != NULL) $var += 64;	//Add password to header
+		
 		$buffer{$i++} = chr($var);
 		//Keep alive
 		$buffer{$i++} = chr(0x00);
@@ -94,6 +112,15 @@ class phpMQTT {
 
 		$buffer .= $this->strwritestring($this->clientid,$i);
 
+		//Adding will to payload
+		if($this->will != NULL){
+			$buffer .= $this->strwritestring($this->will['topic'],$i);
+			$buffer .= $this->strwritestring($this->will['content'],$i);
+		}
+		
+		if($this->username) $buffer .= $this->strwritestring($this->username,$i);
+		if($this->password) $buffer .= $this->strwritestring($this->password,$i);
+		
 		$head = " ";
 		$head{0} = chr(0x10);
 		$head{1} = chr($i);
@@ -207,9 +234,6 @@ class phpMQTT {
 
 		$head{0} = chr($cmd);		
 		$head .= $this->setmsglength($i);
-		
-		$this->printstr($head);
-		$this->printstr($buffer);
 		
 		fwrite($this->socket, $head, strlen($head));
 		fwrite($this->socket, $buffer, $i);
