@@ -70,13 +70,13 @@ class phpMQTT {
 		$address = gethostbyname($this->address);	
 		$this->socket = fsockopen($address, $this->port, $errno, $errstr, 60);
 		
-		stream_set_timeout($this->socket, 5);
-		stream_set_blocking($this->socket,true);
-		
 		if (!$this->socket ) {
 		    error_log("fsockopen() $errno, $errstr \n");
-			exit();
+			return false;
 		}
+		
+		stream_set_timeout($this->socket, 5);
+		stream_set_blocking($this->socket,true);
 			
 		$i = 0;
 		$buffer = " ";
@@ -106,10 +106,11 @@ class phpMQTT {
 		if($this->password != NULL) $var += 64;	//Add password to header
 		
 		$buffer{$i++} = chr($var);
+		
 		//Keep alive
-		$buffer{$i++} = chr(0x00);
-		$buffer{$i++} = chr($this->keepalive);
-
+		$buffer{$i++} = chr($this->keepalive >> 8);
+		$buffer{$i++} = chr($this->keepalive & 0xff);
+		
 		$buffer .= $this->strwritestring($this->clientid,$i);
 
 		//Adding will to payload
@@ -121,7 +122,7 @@ class phpMQTT {
 		if($this->username) $buffer .= $this->strwritestring($this->username,$i);
 		if($this->password) $buffer .= $this->strwritestring($this->password,$i);
 		
-		$head = " ";
+		$head = "  ";
 		$head{0} = chr(0x10);
 		$head{1} = chr($i);
 	
@@ -130,15 +131,17 @@ class phpMQTT {
 		              
 	 	$string = $this->read(4);
 	
-		if($string{3} == chr(0)){
+		if(ord($string{0})>>4 == 2 && $string{3} == chr(0)){
 			if($this->debug) echo "Connected to Broker\n"; 
-		}else{
-			error_log(sprintf("Connection failed! (Error: 0x%02x)\n", ord($string{3})));
-			exit(1);
+		}else{	
+			error_log(sprintf("Connection failed! (Error: 0x%02x 0x%02x)\n", 
+			                        ord($string{0}),ord($string{3})));
+			return false;
 		}
 		
 		$this->timesinceping = time();
 		
+		return true;
 	}
 	
 	/* read: reads in so many bytes */
