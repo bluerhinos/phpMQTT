@@ -146,14 +146,20 @@ class phpMQTT {
 
 	/* read: reads in so many bytes */
 	function read($int = 8192 ){
+
+		//	print_r(socket_get_status($this->socket));
+		
 		$string="";
 		$togo = $int;
 		while (!feof($this->socket) && $togo>0) {
 			$togo = $int - strlen($string);
 			if($togo) $string .= fread($this->socket, $togo);
 		}
-
-		return $string;
+		
+	
+		
+		
+			return $string;
 	}
 
 	/* subscribe: subscribes to topics */
@@ -207,7 +213,6 @@ class phpMQTT {
 	function close(){
 	 	$this->disconnect();
 		fclose($this->socket);	
-		exit(0);
 	}
 
 	/* publish: publishes $content on a $topic */
@@ -250,7 +255,11 @@ class phpMQTT {
 			$msg = substr($msg,($tlen+2));
 			$found = 0;
 			foreach($this->topics as $key=>$top){
-				if(preg_match("/^".str_replace("#",".*",str_replace("+","[^\/]*",str_replace("/","\/",$key)))."$/",$topic) ){
+				if( preg_match("/^".str_replace("#",".*",
+						str_replace("+","[^\/]*",
+							str_replace("/","\/",
+								str_replace("$",'\$',
+									$key))))."$/",$topic) ){
 					if(function_exists($top['function'])){
 						call_user_func($top['function'],$topic,$msg);
 						$found = 1;
@@ -281,12 +290,15 @@ class phpMQTT {
 				$multiplier = 1; 
 				$value = 0;
 				do{
-				  $digit = ord(fgetc($this->socket));
+				  $digit = ord($this->read(1));
 				  $value += ($digit & 127) * $multiplier; 
 				  $multiplier *= 128;
 				}while (($digit & 128) != 0);
 
-				$string = $this->read($value,"fetch");
+				
+				if($this->debug) echo "Fetching: $value\n";
+				if($value)
+					$string = $this->read($value,"fetch");
 				if($cmd){
 					switch($cmd){
 						case 3:
@@ -296,10 +308,9 @@ class phpMQTT {
 
 					$this->timesinceping = time();
 				}
+				
 
 			}else{
-
-
 				if($this->debug) echo "not found something\n";
 				$this->ping();	
 			}
