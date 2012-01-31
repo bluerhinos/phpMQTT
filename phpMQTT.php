@@ -273,7 +273,7 @@ class phpMQTT {
 	/* proc: the processing loop for an "allways on" client */	
 	function proc(){
 
-		while(1){
+		if(1){
 			$sockets = array($this->socket);
 			$w = $e = NULL;
 
