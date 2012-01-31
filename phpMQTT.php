@@ -79,17 +79,17 @@ class phpMQTT {
 		stream_set_blocking($this->socket,true);
 
 		$i = 0;
-		$buffer = " ";
+		$buffer = "";
 
-		$buffer{$i++} = chr(0x00);
-		$buffer{$i++} = chr(0x06);
-		$buffer{$i++} = chr(0x4d);
-		$buffer{$i++} = chr(0x51);
-		$buffer{$i++} = chr(0x49);
-		$buffer{$i++} = chr(0x73);
-		$buffer{$i++} = chr(0x64);
-		$buffer{$i++} = chr(0x70);
-		$buffer{$i++} = chr(0x03);
+		$buffer .= chr(0x00); $i++;
+		$buffer .= chr(0x06); $i++;
+		$buffer .= chr(0x4d); $i++;
+		$buffer .= chr(0x51); $i++;
+		$buffer .= chr(0x49); $i++;
+		$buffer .= chr(0x73); $i++;
+		$buffer .= chr(0x64); $i++;
+		$buffer .= chr(0x70); $i++;
+		$buffer .= chr(0x03); $i++;
 
 		//No Will
 		$var = 0;
@@ -105,17 +105,17 @@ class phpMQTT {
 		if($this->username != NULL) $var += 128;	//Add username to header
 		if($this->password != NULL) $var += 64;	//Add password to header
 
-		$buffer{$i++} = chr($var);
+		$buffer .= chr($var); $i++;
 
 		//Keep alive
-		$buffer{$i++} = chr($this->keepalive >> 8);
-		$buffer{$i++} = chr($this->keepalive & 0xff);
+		$buffer .= chr($this->keepalive >> 8); $i++;
+		$buffer .= chr($this->keepalive & 0xff); $i++;
 
 		$buffer .= $this->strwritestring($this->clientid,$i);
 
 		//Adding will to payload
 		if($this->will != NULL){
-			$buffer .= $this->strwritestring($this->will['topic'],$i);
+			$buffer .= $this->strwritestring($this->will['topic'],$i);  
 			$buffer .= $this->strwritestring($this->will['content'],$i);
 		}
 
@@ -165,14 +165,14 @@ class phpMQTT {
 	/* subscribe: subscribes to topics */
 	function subscribe($topics, $qos = 0){
 		$i = 0;
-		$buffer = " ";
+		$buffer = "";
 		$id = $this->msgid;
-		$buffer{$i++} = chr($id >> 8);
-		$buffer{$i++} = chr($id % 256);
+		$buffer .= chr($id >> 8);  $i++;
+		$buffer .= chr($id % 256);  $i++;
 
 		foreach($topics as $key => $topic){
 			$buffer .= $this->strwritestring($key,$i);
-			$buffer{$i++} = chr($topic["qos"]);
+			$buffer .= chr($topic["qos"]);  $i++;
 			$this->topics[$key] = $topic; 
 		}
 
@@ -180,23 +180,23 @@ class phpMQTT {
 		//$qos
 		$cmd +=	($qos << 1);
 
-		$head = " ";
-		$head{0} = chr($cmd);
-		$head{1} = chr($i);
 
+		$head = chr($cmd);
+		$head .= chr($i);
+		
 		fwrite($this->socket, $head, 2);
 		fwrite($this->socket, $buffer, $i);
 		$string = $this->read(2);
-
-		$bytes = ord($string{1});
+		
+		$bytes = ord(substr($string,1,1));
 		$string = $this->read($bytes);
 	}
 
 	/* ping: sends a keep alive ping */
 	function ping(){
 			$head = " ";
-			$head{0} = chr(0xc0);		
-			$head{1} = chr(0x00);
+			$head = chr(0xc0);		
+			$head .= chr(0x00);
 			fwrite($this->socket, $head, 2);
 			if($this->debug) echo "ping sent\n";
 	}
@@ -227,8 +227,8 @@ class phpMQTT {
 
 		if($qos){
 			$id = $this->msgid++;
-			$buffer{$i++} = chr($id >> 8);
-		 	$buffer{$i++} = chr($id % 256);
+			$buffer .= chr($id >> 8);  $i++;
+		 	$buffer .= chr($id % 256);  $i++;
 		}
 
 		$buffer .= $content;
@@ -322,6 +322,7 @@ class phpMQTT {
 			}
 
 		}
+		return 1;
 	}
 
 	/* getmsglength: */
@@ -360,8 +361,8 @@ class phpMQTT {
 		$len = strlen($str);
 		$msb = $len >> 8;
 		$lsb = $len % 256;
-		$ret{0} = chr($msb);
-		$ret{1} = chr($lsb);
+		$ret = chr($msb);
+		$ret .= chr($lsb);
 		$ret .= $str;
 		$i += ($len+2);
 		return $ret;
