@@ -276,13 +276,21 @@ class phpMQTT {
 		if(1){
 			$sockets = array($this->socket);
 			$w = $e = NULL;
-
+			$cmd = 0;
 			if($this->debug) echo "start wait\n";
 
 			if(stream_select($sockets, $w, $e, ($this->keepalive/2))){
 				if($this->debug) echo "found something\n";
 
 				//$byte = fgetc($this->socket);
+				if(feof($this->socket)){
+						if($this->debug) echo "eof receive going to reconnect for good measure\n";
+						fclose($this->socket);
+						$this->connect(false);
+						if(count($this->topics))
+							$this->subscribe($this->topics);	
+				}
+				
 				$byte = $this->read(1);
 				$cmd = (int)(ord($byte)/16);
 				if($this->debug) echo "Recevid: $cmd\n";
@@ -319,6 +327,8 @@ class phpMQTT {
 					if($this->debug) echo "not seen a package in a while, disconnecting\n";
 					fclose($this->socket);
 					$this->connect(false);
+					if(count($this->topics))
+						$this->subscribe($this->topics);
 			}
 
 		}
