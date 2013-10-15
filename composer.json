@@ -1,0 +1,15 @@
+{
+    "name": "bluerhinos/phpmqtt",
+    "description": "Simple MQTT Class",
+    "license": "BSD",
+    "authors": [
+        {
+            "name": "Andrew Milsted",
+            "email": "andrew@bluerhinos.co.uk"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+
+    }
+}
