@@ -3,7 +3,7 @@
 require("../phpMQTT.php");
 
 	
-$mqtt = new phpMQTT("example.com", 1883, "PHP MQTT Client");
+$mqtt = new phpMQTT("example.com", 1883, "phpMQTT Sub Example"); //Change client name to something unique
 
 if(!$mqtt->connect()){
 	exit(1);
