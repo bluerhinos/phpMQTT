@@ -273,7 +273,7 @@ class phpMQTT {
 							str_replace("/","\/",
 								str_replace("$",'\$',
 									$key))))."$/",$topic) ){
-					if(function_exists($top['function'])){
+					if(is_callable($top['function'])){
 						call_user_func($top['function'],$topic,$msg);
 						$found = 1;
 					}
