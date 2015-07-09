@@ -1,5 +1,4 @@
 <?php
-date_default_timezone_set('Europe/Berlin');
 /*
  	phpMQTT
 	A simple php class to connect/publish/subscribe to an MQTT broker
