@@ -1,6 +1,6 @@
 {
-    "name": "bluerhinos/phpmqtt",
-    "description": "Simple MQTT Class",
+    "name": "timhoeppner/phpmqtt",
+    "description": "Simple MQTT Class with PSR-4 namespacing",
     "license": "BSD",
     "type": "library",
     "authors": [
