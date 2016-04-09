@@ -111,7 +111,7 @@ class phpMQTT {
 			$i=0;
 			$response='';
 			while ($line = fgets($this->socket)) {
-				if ($i == 0 && !preg_match("/^HTTP.*\s*200\s*.*$/", $line)) {
+				if ($i == 0 && !preg_match("/^HTTP.*\s+200\s+.*$/", $line)) {
 					if($this->debug) error_log("proxy connect failed: $line \n");
 					return false;
 				}
