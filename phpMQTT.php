@@ -66,7 +66,7 @@ class phpMQTT {
 
 		if ($this->websocket) {
 			if (!extension_loaded('websockets')) {
-					if($this->debug) error_log("websocket extension not loaded\n");
+					if($this->debug) error_log("websockets extension not loaded\n");
 					return false;
 			}
 		}
@@ -143,7 +143,7 @@ class phpMQTT {
 				$response='';
 				while ($line = fgets($this->socket)) {
 					//if($this->debug) error_log("response: ".rtrim($line));
-					if ($i == 0 && !preg_match("/^HTTP.*\s*101\s*.*$/", $line)) {
+					if ($i == 0 && !preg_match("/^HTTP.*\s+101\s+.*$/", $line)) {
 						if($this->debug) error_log("websocket connect failed: $line \n");
 						return false;
 					}
