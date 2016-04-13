@@ -17,5 +17,5 @@
    },
    "autoload-dev": {
       "psr-4": {"phpMQTT\\": "./"}
-   },
+   }
 }
