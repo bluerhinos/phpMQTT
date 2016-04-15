@@ -124,7 +124,7 @@ class phpMQTT {
 		}
 		if ($this->secure) {
 			if (!stream_socket_enable_crypto($this->socket,true,STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-					if($this->debug) error_log("enable tls via proxy failed\n");
+					if($this->debug) error_log("enable tls failed\n");
 					return false;
 			}
 		}
