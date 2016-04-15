@@ -11,5 +11,11 @@
     "minimum-stability": "dev",
     "require": {
 
-    }
+    },
+   "autoload": {
+      "psr-4": {"phpMQTT\\": "./"}
+   },
+   "autoload-dev": {
+      "psr-4": {"phpMQTT\\": "./"}
+   }
 }
