@@ -11,10 +11,10 @@ $password = "";                     // set your password
 $mqtt = new phpMQTT($server, $port, "phpMQTT-publisher");
 
 if ($mqtt->connect(true, NULL, $username, $password)) {
-	$mqtt->publish("bluerhinos/phpMQTT/examples/publishtest","Hello World! at ".date("r"),0);
+	$mqtt->publish("bluerhinos/phpMQTT/examples/publishtest", "Hello World! at " . date("r"), 0);
 	$mqtt->close();
 } else {
-    echo "Time out!";
+    echo "Time out!\n";
 }
 
 ?>
