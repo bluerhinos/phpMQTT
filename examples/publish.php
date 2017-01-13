@@ -8,7 +8,7 @@ require("../phpMQTT.php");
 $username = "";                     // set your username
 $password = "";                     // set your password
 
-$mqtt = new phpMQTT($server, $port, "phpMQTT");
+$mqtt = new phpMQTT($server, $port, "phpMQTT-publisher");
 
 if ($mqtt->connect(true, NULL, $username, $password)) {
 	$mqtt->publish("bluerhinos/phpMQTT/examples/publishtest","Hello World! at ".date("r"),0);

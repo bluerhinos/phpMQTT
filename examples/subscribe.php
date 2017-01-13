@@ -8,7 +8,7 @@ require("../phpMQTT.php");
 $username = "";                     // set your username
 $password = "";                     // set your password
 
-$mqtt = new phpMQTT($server, $port, "ClientID".rand());
+$mqtt = new phpMQTT($server, $port, "phpMQTT-subscriber");
 
 if(!$mqtt->connect(true, NULL, $username, $password)){
 	exit(1);
