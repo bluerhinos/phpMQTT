@@ -3,9 +3,14 @@
 require("../phpMQTT.php");
 
 
-$mqtt = new phpMQTT("m11.cloudmqtt.com", 13251, "ClientID".rand());
+  $server = "m11.cloudmqtt.com";    // change if necessary
+    $port = 13251;                  // change if necessary
+$username = "";                     // set your username
+$password = "";                     // set your password
 
-if(!$mqtt->connect(true, NULL, "USERNAME_HERE", "PASSWORD_HERE")){
+$mqtt = new phpMQTT($server, $port, "ClientID".rand());
+
+if(!$mqtt->connect(true, NULL, $username, $password)){
 	exit(1);
 }
 
