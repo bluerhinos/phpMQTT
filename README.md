@@ -1,5 +1,6 @@
 # Lightning - MQTT Client
-
+[![Total Downloads](https://poser.pugx.org/brandonhudson/lightning/downloads)](https://packagist.org/packages/brandonhudson/lightning)
+[![License](https://poser.pugx.org/brandonhudson/lightning/license)](https://packagist.org/packages/brandonhudson/lightning)
 ### Overview
 
 Lightning is a PHP micro framework that lets you quickly connect, publish, and subscribe to MQTT topics. 
