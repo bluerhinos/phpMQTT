@@ -1,8 +1,8 @@
 <?php
 
-namespace phpMQTT\Topic;
+namespace Lightning\Topic;
 
-use phpMQTT\Exception\RouteException;
+use Lightning\Exception\RouteException;
 use stdClass;
 
 class VariableRoute {
@@ -27,10 +27,17 @@ class VariableRoute {
 
 			// This is an inline variable
 			if (strpos($piece, self::VARIABLE_SEPERATOR) !== false) {
-				$variableName = str_replace('+', '', $piece);
+				$variableName = str_replace(self::VARIABLE_SEPERATOR, '', $piece);
 
 				if (!$variableName) {
 					continue;
+				}
+
+				if (isset($this->attributes[$variableName])) {
+					throw new RouteException('Variable cannot be included twice within a single topic.', [
+						'variable' => $variableName,
+						'topic' => $this->readable,
+					]);
 				}
 
 				$this->attributes[$variableName] = new stdClass;
@@ -41,11 +48,15 @@ class VariableRoute {
 			if (strpos($piece, self::VARIABLE_WILDCARD) !== false) {
 				// The wildcard is out of place and topic string is not valid per the MQTT specification
 				if ($index != count($routeParts) - 1) {
-					throw new RouteException('Topic wildcard can only be at the end of the topic.');
+					throw new RouteException('Topic wildcard can only be at the end of the topic.', [
+						'topic' => $this->readable,
+					]);
 				}
 
 				if (str_replace(self::VARIABLE_WILDCARD, '', $piece)) {
-					throw new RouteException('Topic wildcard can only be at the end of the topic.');
+					throw new RouteException('Topic wildcard can only be at the end of the topic.', [
+						'topic' => $this->readable,
+					]);
 				} 
 
 				$this->wildcardIndex = $index;
@@ -71,8 +82,8 @@ class VariableRoute {
 	        	$finalRoute .= "/";
 	        }
 
-	        if ($piece && strpos($piece, "+") !== false) {
-	                $piece = "+";
+	        if ($piece && strpos($piece, self::VARIABLE_SEPERATOR) !== false) {
+	                $piece = self::VARIABLE_SEPERATOR;
 	        }
 
 	        $finalRoute .= $piece;

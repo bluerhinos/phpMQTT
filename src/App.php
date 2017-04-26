@@ -25,10 +25,10 @@
 	
 */
 
-namespace phpMQTT;
+namespace Lightning;
 
-use phpMQTT\Topic;
-use phpMQTT\Response;
+use Lightning\Topic;
+use Lightning\Response;
 
 class App {
 

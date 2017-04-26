@@ -9,7 +9,7 @@
         }
     ],
     "autoload": {
-        "psr-4": {"phpMQTT\\": "src/"}
+        "psr-4": {"Lightning\\": "src/"}
     },
     "minimum-stability": "dev",
     "require": {

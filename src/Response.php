@@ -1,8 +1,8 @@
 <?php
 
-namespace phpMQTT;
+namespace Lightning;
 
-use phpMQTT\Exception\ResponseException;
+use Lightning\Exception\ResponseException;
 
 class Response {
 	private $route; /* The full route with values */
@@ -15,10 +15,10 @@ class Response {
 	/**
 	 * Constructs a new subscription response.
 	 * @param string         $route           the route that was called
-	 * @param \phpMQTT\Topic $subscribedTopic the original topic that was subscribed to
+	 * @param \Lightning\Topic $subscribedTopic the original topic that was subscribed to
 	 * @param mixed          $message         the message that was recieved
 	 */
-	function __construct($route, \phpMQTT\Topic $subscribedTopic, $message = '') {
+	function __construct($route, \Lightning\Topic $subscribedTopic, $message = '') {
 		if (!$subscribedTopic) {
 			throw new ResponseException('A Topic is required to initialize a Response object.');
 		}
@@ -154,5 +154,13 @@ class Response {
 	 */
 	public function getRoute() {
 		return $this->route;
+	}
+
+	/**
+	 * Returns the originally subscribed topic.
+	 * @return Lightning\Topic
+	 */
+	public function getSubscribedTopic() {
+		return $this->subscribedTopic;
 	}
 }
