@@ -1,6 +1,6 @@
 <?php
 
-namespace phpMQTT\Exception;
+namespace Lightning\Exception;
 
 use Exception;
 
@@ -11,7 +11,10 @@ class TopicException extends Exception {
         parent::__construct($message, $code, $previous);
     }
 
-    // custom string representation of object
+    /**
+     * Custom string representation of the exception.
+     * @return sting
+     */
     public function __toString() {
         return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
     }

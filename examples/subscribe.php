@@ -20,14 +20,14 @@ $clientID = md5(uniqid()); // use a unique client id for each connection
 $username = ''; // Username is optional
 $password = ''; // password is optional
 
-$mqtt = new \phpMQTT\App($host, $port, $clientID, $username, $password);
+$mqtt = new \Lightning\App($host, $port, $clientID, $username, $password);
 
 // Optional debugging
 $mqtt->debug(true);
 
 if (!$mqtt->connect()) {
 	echo "Failed to connect\n";
-	exit(1);
+	exit;
 }
 
 // Add a new subscription for each topic that is needed

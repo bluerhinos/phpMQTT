@@ -1,9 +1,9 @@
 <?php
 
-namespace phpMQTT;
+namespace Lightning;
 
-use phpMQTT\Exception\TopicException;
-use phpMQTT\Topic\VariableRoute;
+use Lightning\Exception\TopicException;
+use Lightning\Topic\VariableRoute;
 
 class Topic {
 	private $qos; /* The quality of service for the subscription */
