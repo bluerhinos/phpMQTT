@@ -10,7 +10,7 @@ Lightning is a PHP micro framework that lets you quickly connect, publish, and s
 require 'vendor/autoload.php';
 
 $mqtt = new \Lightning\App();
-$mqtt->subscribe('/hello/:name', 0, function ($response) {
+$mqtt->subscribe('/hello/+name', 0, function ($response) {
     $topic = $response->getRoute();
     $name = $response->attr('name');
     $message = $response->getMessage();
