@@ -34,7 +34,7 @@ $mqtt->close();
 ### How to Install Lightning
 We recommend that you install Lightning with the [Composer](https://getcomposer.org) dependency manager, using:
 ```
-composer require brandonhudson\lightning
+composer require brandonhudson/lightning
 ```
 
 Require the Composer autoloader into your PHP script, and you are ready to start using it.
