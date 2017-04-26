@@ -123,7 +123,7 @@ Lighting supports topics that use the `/` seperator for logical components of th
 ```
 While this does narrow the possibilities for how you can structure your topics, we do this to allow you to parse variables out of the topic after it has been subscribed to (see below).
 
-###### Inline Variables
+##### Inline Variables
 Lighting supports inline variable declaration right inside of the topic, allowing you to easily parse variables out of the response when a message is received. In order to declare a variable, you include the `+` operator along with the variable name (ex: `+id`) in between two forward slashes.
 
 Example:
@@ -135,7 +135,7 @@ Example:
 
 As with standard variable naming conventions, inline variables need to have unique names within a single topic (you cannot reuse the same variable name twice in a single topic). If you misformat a route, Lightning will throw a `Lightning\Exception\RouteException` detailing the problem.
 
-###### Wildcards
+##### Wildcards
 Lightning also supports wildcard topic delcarlation, allowing you to recieve messages on a topic that does not have a fixed topic structure. Per the MQTT specification, wildcards are only available at the end of the topic - you cannot include a wildcard in the middle of a topic. A wildcard is denoted using the `#` symbol. Example:
 
 ```
@@ -147,7 +147,7 @@ Lightning also supports wildcard topic delcarlation, allowing you to recieve mes
 If you misuse a wildcard in your topic, Lightning will throw a `Lightning\Exception\RouteException` detailing the problem.
 
 
-###### Mixed Uses
+##### Mixed Uses
 Lighting topics can include both inline variables and wildcards in a topic. Example:
 
 ```
@@ -200,7 +200,6 @@ $mqtt->subscribe('/users/+id/status', 0, 'exampleCallback');
 // Listen will poll for new messages sent to this client
 $mqtt->listen();
 ```
-
 
 #### Working with Responses
 Lightning responses are modeled closely after PSR HTTP responses, including a number of useful methods for retrieving information about the message you receive.
