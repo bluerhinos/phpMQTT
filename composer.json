@@ -8,6 +8,9 @@
             "email": "andrew@bluerhinos.co.uk"
         }
     ],
+    "autoload": {
+        "psr-4": {"phpMQTT\\": "src/"}
+    },
     "minimum-stability": "dev",
     "require": {
 

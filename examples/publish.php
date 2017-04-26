@@ -1,13 +1,21 @@
 <?php
 
-require("../phpMQTT.php");
+require("../vendor/autoload.php");
 
-	
-$mqtt = new phpMQTT("example.com", 1883, "phpMQTT Pub Example"); //Change client name to something unique
+$host = "iot.eclipse.org";
+$port = 1883;
+$clientID = md5(uniqid()); // use a unique client id for each connection
+$username = ''; // Username is optional
+$password = ''; // password is optional
 
-if ($mqtt->connect()) {
-	$mqtt->publish("bluerhinos/phpMQTT/examples/publishtest","Hello World! at ".date("r"),0);
-	$mqtt->close();
+$mqtt = new \phpMQTT\App($host, $port, $clientID, $username, $password);
+
+if (!$mqtt->connect()) {
+	echo "Failed to connect.\n";
 }
+
+$mqtt->publish("test/user/1/status", '{"hello":"world"}', 1);
+$mqtt->publish("test/request/hello/world", '{"hello":"world"}', 1);
+$mqtt->close();
 
 ?>
