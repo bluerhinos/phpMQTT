@@ -46,7 +46,7 @@ require 'vendor/autoload.php';
 ### Usage
 
 #### Connection
-In order to connect to an MQTT broker, you'll need to initialize a new Lighting\App object with the following parameters:
+In order to connect to an MQTT broker, you'll need to initialize a new Lightning\App object with the following parameters:
 
 |Parameter   |Type    |Default |Description                                |
 |:----------:|:------:|:------:|-------------------------------------------|
@@ -117,14 +117,14 @@ $mqtt->close();
 Lightning offers you a powerful way to quickly subcribe and react to messages sent on specific topics. Modeled after the Slim PHP Framework, Lightning subscriptions are designed in a callback pattern, where a function is invoked when a message is recieved on the subscribed topic.
 
 ##### Topics
-Lighting supports topics that use the `/` seperator for logical components of the topic. Example:
+Lightning supports topics that use the `/` seperator for logical components of the topic. Example:
 ```
 /home/temperature/increase
 ```
 While this does narrow the possibilities for how you can structure your topics, we do this to allow you to parse variables out of the topic after it has been subscribed to (see below).
 
 ##### Inline Variables
-Lighting supports inline variable declaration right inside of the topic, allowing you to easily parse variables out of the response when a message is received. In order to declare a variable, you include the `+` operator along with the variable name (ex: `+id`) in between two forward slashes.
+Lightning supports inline variable declaration right inside of the topic, allowing you to easily parse variables out of the response when a message is received. In order to declare a variable, you include the `+` operator along with the variable name (ex: `+id`) in between two forward slashes.
 
 Example:
 ```
@@ -148,7 +148,7 @@ If you misuse a wildcard in your topic, Lightning will throw a `Lightning\Except
 
 
 ##### Mixed Uses
-Lighting topics can include both inline variables and wildcards in a topic. Example:
+Lightning topics can include both inline variables and wildcards in a topic. Example:
 
 ```
 /users/+id/#
