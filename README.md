@@ -141,7 +141,7 @@ Lightning also supports wildcard topic delcarlation, allowing you to recieve mes
 
 ```
 /users/#  //subscribe to anything that has /users/ at the beginning of the topic
- 
+
 #  //subscribe to everything
 ```
 
@@ -153,7 +153,6 @@ Lightning topics can include both inline variables and wildcards in a topic. Exa
 
 ```
 /users/+id/#
-
 ```
 
 ##### Callbacks
