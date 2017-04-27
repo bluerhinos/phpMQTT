@@ -219,7 +219,7 @@ Lightning responses are modeled closely after PSR HTTP responses, including a nu
 |**getSubscribedTopic()**|(none)     |Lightning\Topic|Returns the original topic object that we constructed for the subscription|
 
 ##### Example
-```
+```php
 <?php
 require 'vendor/autoload.php';
 
