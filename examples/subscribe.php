@@ -4,7 +4,7 @@ require("../vendor/autoload.php");
 
 /**
  * An example callback function that is not inline.
- * @param  phpMQTT\Response $response
+ * @param  \Lightning\Response $response
  */
 function callbackFunction($response) {
 	$topic = $response->getRoute();
