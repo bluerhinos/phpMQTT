@@ -361,8 +361,6 @@ class App {
 		}
 	}
 
-	/* proc: the processing loop for an "allways on" client 
-		set true when you are doing other stuff in the loop good for watching something else at the same time */
 	/**
 	 * The processing loop for an always on client.
 	 * Set true when you are doing other things in the the loop - good for watching something else at the same time.
@@ -370,7 +368,9 @@ class App {
 	 * @return int
 	 */
 	public function listen($loop = true) {
-		while ($loop) {
+		$looping = true;
+
+		while ($looping) {
 			$sockets = array($this->socket);
 			$w = $e = NULL;
 			$cmd = 0;
@@ -446,6 +446,8 @@ class App {
 					$this->initSubscriptions();
 				}
 			}
+
+			$looping = $loop;
 		}
 
 		return 1;
