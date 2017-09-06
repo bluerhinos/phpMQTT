@@ -252,7 +252,7 @@ class phpMQTT {
 		//$buffer .= $this->strwritestring($content,$i);
 
 		if($qos){
-			$id = $this->msgid++;
+			$id = $this->msgid;
 			$buffer .= chr($id >> 8);  $i++;
 		 	$buffer .= chr($id % 256);  $i++;
 		}
@@ -271,6 +271,24 @@ class phpMQTT {
 
 		fwrite($this->socket, $head, strlen($head));
 		fwrite($this->socket, $buffer, $i);
+
+		if($qos == 2)
+		{
+			// Send PUBREL
+			$head = " ";
+			$cmd = 0x62;
+			$head{0} = chr($cmd);
+			$head .= $this->setmsglength(2);
+
+			$id = $this->msgid;
+
+			$head .= chr($id >> 8);
+			$head .= chr($id % 256);
+
+			fwrite($this->socket, $head, strlen($head));
+		}
+
+		$this->msgid++;
 
 	}
 
