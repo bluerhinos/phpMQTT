@@ -1,15 +1,18 @@
 {
-    "name": "bluerhinos/phpmqtt",
-    "description": "Simple MQTT Class",
-    "license": "BSD",
+    "name": "brandonhudson/lightning",
+    "description": "PHP micro framework for MQTT, letting you quickly connect, publish, and subscribe to topics.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["framework", "micro", "mqtt"],
     "authors": [
         {
-            "name": "Andrew Milsted",
-            "email": "andrew@bluerhinos.co.uk"
+            "name": "Brandon Hudson",
+            "email": "brandon@brandonhudson.me"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {
-
+    "autoload": {
+        "psr-4": {
+            "Lightning\\": "Lightning"
+        }
     }
 }
