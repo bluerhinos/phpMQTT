@@ -204,7 +204,7 @@ class phpMQTT {
 
 		$cmd = 0x80;
 		//$qos
-		$cmd +=	($qos << 1);
+		$cmd +=	(1 << 1);
 
 
 		$head = chr($cmd);
