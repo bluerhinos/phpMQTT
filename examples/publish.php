@@ -1,6 +1,6 @@
 <?php
 
-require("../vendor/autoload.php");
+require dirname(__FILE__)."/../vendor/autoload.php";
 
 $host = "iot.eclipse.org";
 $port = 1883;

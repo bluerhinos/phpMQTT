@@ -1,6 +1,6 @@
 <?php
 
-require("../vendor/autoload.php");
+require dirname(__FILE__)."/../vendor/autoload.php";
 
 /**
  * An example callback function that is not inline.
