@@ -2,6 +2,7 @@
     "name": "bluerhinos/phpmqtt",
     "description": "Simple MQTT Class",
     "license": "BSD",
+    "type": "library",
     "authors": [
         {
             "name": "Andrew Milsted",
@@ -10,6 +11,11 @@
     ],
     "minimum-stability": "dev",
     "require": {
-
+        "php": ">=5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bluerhinos\\": "./"
+        }
     }
 }
