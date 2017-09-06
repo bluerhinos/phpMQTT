@@ -334,7 +334,7 @@ class phpMQTT {
 				if($this->debug) echo "Fetching: $value\n";
 				
 				if($value)
-					$string = $this->read($value,"fetch");
+					$string = $this->read($value);
 				
 				if($cmd){
 					switch($cmd){
