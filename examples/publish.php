@@ -2,12 +2,19 @@
 
 require("../phpMQTT.php");
 
-	
-$mqtt = new phpMQTT("example.com", 1883, "phpMQTT Pub Example"); //Change client name to something unique
 
-if ($mqtt->connect()) {
-	$mqtt->publish("bluerhinos/phpMQTT/examples/publishtest","Hello World! at ".date("r"),0);
+  $server = "m11.cloudmqtt.com";    // change if necessary
+    $port = 13251;                  // change if necessary
+$username = "";                     // set your username
+$password = "";                     // set your password
+
+$mqtt = new phpMQTT($server, $port, "phpMQTT-publisher");
+
+if ($mqtt->connect(true, NULL, $username, $password)) {
+	$mqtt->publish("bluerhinos/phpMQTT/examples/publishtest", "Hello World! at " . date("r"), 0);
 	$mqtt->close();
+} else {
+    echo "Time out!\n";
 }
 
 ?>
