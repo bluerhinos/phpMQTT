@@ -97,6 +97,7 @@ class phpMQTT {
 
 		stream_set_timeout($this->socket, 5);
 		stream_set_blocking($this->socket, 0);
+		socket_set_option($this->socket, SOL_SOCKET, SO_KEEPALIVE, 1);
 
 		$i = 0;
 		$buffer = "";
