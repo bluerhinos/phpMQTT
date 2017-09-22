@@ -101,15 +101,13 @@ class phpMQTT {
 		$i = 0;
 		$buffer = "";
 
-		$buffer .= chr(0x00); $i++;
-		$buffer .= chr(0x06); $i++;
-		$buffer .= chr(0x4d); $i++;
-		$buffer .= chr(0x51); $i++;
-		$buffer .= chr(0x49); $i++;
-		$buffer .= chr(0x73); $i++;
-		$buffer .= chr(0x64); $i++;
-		$buffer .= chr(0x70); $i++;
-		$buffer .= chr(0x03); $i++;
+		$buffer .= chr(0x00); $i++; // Length MSB
+		$buffer .= chr(0x04); $i++; // Length LSB
+		$buffer .= chr(0x4d); $i++; // M
+		$buffer .= chr(0x51); $i++; // Q
+		$buffer .= chr(0x54); $i++; // T
+		$buffer .= chr(0x54); $i++; // T
+		$buffer .= chr(0x04); $i++; // // Protocol Level
 
 		//No Will
 		$var = 0;
@@ -142,9 +140,17 @@ class phpMQTT {
 		if($this->username) $buffer .= $this->strwritestring($this->username,$i);
 		if($this->password) $buffer .= $this->strwritestring($this->password,$i);
 
-		$head = "  ";
-		$head{0} = chr(0x10);
-		$head{1} = chr($i);
+		$head = chr(0x10);
+		
+		while ( $i > 0 ){
+	 		$encodedByte = $i % 128;
+	 		$i = $i / 128;
+			$i = (int) $i;
+	 		if ( $i > 0 ){
+	 			$encodedByte = $encodedByte | 128;
+ 	 		}
+			$head .= chr($encodedByte);
+	 	}
 
 		fwrite($this->socket, $head, 2);
 		fwrite($this->socket,  $buffer);
