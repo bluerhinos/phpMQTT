@@ -5,3 +5,5 @@ A simple php class to connect/publish/subscribe to an MQTT broker
 
 Documentation: Coming Soon
 Source: http://github.com/bluerhinos/phpMQTT
+
+Packagist install is at : <<detail to follow>>
