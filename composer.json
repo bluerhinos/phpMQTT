@@ -1,6 +1,6 @@
 {
-    "name": "bluerhinos/phpmqtt",
-    "description": "Simple MQTT Class",
+    "name": "tikagnu/phpmqtt",
+    "description": "Simple MQTT Class - FORK",
     "license": "BSD",
     "type": "library",
     "authors": [
