@@ -20,9 +20,9 @@ use PhpMqqt\Mqtt\Will\Will;
  */
 abstract class AbstractMqtt
 {
-    /**
-     * @var Socket
-     */
+//    /**
+//     * @var Socket
+//     */
     protected $socket;
     /**
      * @var string
@@ -66,7 +66,7 @@ abstract class AbstractMqtt
      */
     public function __construct(Socket $socket, string $clientId, int $keepAlive = 60, bool $clean = true, Will $will = null, string $user = null, string $pass = null)
     {
-        $this->socket = $socket;
+//        $this->socket = $socket;
         $this->clientId = $clientId;
         $this->keepAlive = $keepAlive;
         $this->clean = $clean;
@@ -80,9 +80,17 @@ abstract class AbstractMqtt
      */
     protected function connect()
     {
-        $this->socket->initSocket();
+//        $this->socket->initSocket();
 
+
+        $this->socket = stream_socket_client('tcp' . '://' . '127.0.0.1' . ':' . 1883,
+            $errorNumber,
+            $errorMessage,
+            3,
+            4
+        );
         $this->sendConnectPacket();
+
     }
 
     /**
@@ -153,8 +161,8 @@ abstract class AbstractMqtt
             }
         }
 
-        $varHead->push($this->username ? 128 : 0);
-        $varHead->push($this->password ? 64 : 0);
+        $varHead->push($this->user ? 128 : 0);
+        $varHead->push($this->user ? 64 : 0);
 
         $payload = new Payload();
 
@@ -197,15 +205,30 @@ abstract class AbstractMqtt
 
         $payloadHeader = chr(0x10) . chr($payload->getLength());
 //        dd($payloadHeader);
-        fwrite($this->socket->socket, $payloadHeader, 2);
+//        dd($this->socket);
 
-        fwrite($this->socket->socket, $payload->getContent());
+        fwrite($this->socket, $payloadHeader, 2);
+
+        fwrite($this->socket, $payload->getContent());
 
 //        $this->socket->write($loadHeader, 2)
 //            ->write($load->getContent());
 
+        $string = "";
+        $togo = 4;
 
-        $response = $this->socket->read(4);
+        while (!feof($this->socket) && $togo > 0) {
+            $fread = fread($this->socket, $togo);
+            $string .= $fread;
+            $togo = 4 - strlen($string);
+
+        }
+
+
+
+//        $response = $this->socket->read(4);
+
+        $response = $string;
 
         if (!(ord($response{0}) >> 4 == 2 && $response{3} == chr(0))) {
             var_dump('here');
