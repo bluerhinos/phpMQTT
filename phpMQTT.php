@@ -270,7 +270,13 @@ class phpMQTT {
 		$head .= $this->setmsglength($i);
 
 		fwrite($this->socket, $head, strlen($head));
-		fwrite($this->socket, $buffer, $i);
+		// write to socket until complete message is writen -> according to http://php.net/manual/en/function.fwrite.php -> "Notes"
+		for ($written = 0; $written < strlen($buffer); $written += $fwrite) {
+		    $fwrite = fwrite($this->socket, substr($buffer, $written));
+		    if ($fwrite === false) {
+		        return $written;
+		    }
+		}
 
 	}
 
