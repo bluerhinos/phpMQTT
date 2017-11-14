@@ -9,7 +9,7 @@
 namespace PhpMqqt\PhpMqqt;
 
 
-class SocketConnectPayload
+class Payload
 {
     protected $buff = "";
     protected $count = 0;
@@ -37,7 +37,7 @@ class SocketConnectPayload
         return $this;
     }
 
-    public function pushString($str)
+    public function pushToBytes($str)
     {
         $len = strlen($str);
         $msb = $len >> 8;
