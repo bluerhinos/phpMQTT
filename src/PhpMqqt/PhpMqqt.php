@@ -10,7 +10,7 @@ class PhpMqqt
 {
     protected $socket;
     protected $messageId = 1;
-    protected $keepAlive = 60;
+    protected $keepAlive = 10;
     protected $lastTime;
     protected $topics = [];
     protected $debug = true;
@@ -175,8 +175,6 @@ class PhpMqqt
 
         fwrite($this->socket, $payload->getContent());
 
-        dd($payloadHeader, $payload->getContent());
-
 
         $string = $this->readSocket(4);
 
@@ -302,8 +300,6 @@ class PhpMqqt
     function message($msg)
     {
 
-        var_dump('Message Raw:' . $msg);
-
         $tlen = (ord($msg{0}) << 8) + ord($msg{1});
         $topic = substr($msg, 2, $tlen);
         $msg = substr($msg, ($tlen + 2));
@@ -382,7 +378,6 @@ class PhpMqqt
             }
             $this->ping();
         }
-
 
         if ($this->lastTime < (time() - ($this->keepAlive * 2))) {
             if ($this->debug) {

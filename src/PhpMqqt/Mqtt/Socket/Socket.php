@@ -13,6 +13,10 @@ namespace PhpMqqt\Mqtt\Socket;
  * Class Socket
  * @package PhpMqqt\Mqtt
  */
+/**
+ * Class Socket
+ * @package PhpMqqt\Mqtt\Socket
+ */
 class Socket
 {
     /**
@@ -67,6 +71,11 @@ class Socket
      */
     public function initSocket()
     {
+
+        if ($this->socket) {
+            return $this;
+        }
+
         $errorNumber = null;
         $errorMessage = null;
 
@@ -96,12 +105,19 @@ class Socket
 
     public function write(string $string, $length = null)
     {
-        fwrite($this->socket, $string, $length);
+        if (!is_null($length)) {
+            fwrite($this->socket, $string, $length);
+        } else {
+            fwrite($this->socket, $string);
+        }
         return $this;
     }
 
     public function read(int $size = 8192, bool $binary = false)
     {
+        if(!$this->socket){
+            dd('Invalid Socket');
+        }
         if ($binary) {
             return fread($this->socket, $size);
         }
@@ -111,12 +127,30 @@ class Socket
         while (!feof($this->socket) && $remaining > 0) {
             $tmp = fread($this->socket, $remaining);
             $buff .= $tmp;
-            dd($buff);
             $remaining = $size - strlen($buff);
         }
 
         return $buff;
     }
 
+    /**
+     * @return bool
+     */
+    public function end()
+    {
+        if(!$this->socket){
+            dd('Invalid Socket 2');
+        }
+        return feof($this->socket);
+    }
+
+    /**
+     * @return $this
+     */
+    public function close()
+    {
+        fclose($this->socket);
+        return $this;
+    }
 
 }

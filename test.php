@@ -16,11 +16,23 @@ function dd(...$args)
 require_once "vendor/autoload.php";
 
 
-$socket = new \PhpMqqt\Mqtt\Socket\Socket();
-$publish = new \PhpMqqt\Mqtt\Publish($socket, '12345');
-
-$publish->publish('test/test', 'Messaj de test');
+//$socket = new \PhpMqqt\Mqtt\Socket\Socket();
+//$publish = new \PhpMqqt\Mqtt\Publish\Publish($socket, '12345');
+//$publish->publish('test/test', 'Messaj de test' . uniqid());
 //return;
+
+//$socket = new \PhpMqqt\Mqtt\Socket\Socket();
+//$subscribe = new \PhpMqqt\Mqtt\Subscribe\Subscribe($socket, '123456');
+//
+//$subscribe->subscribeTopics(new \PhpMqqt\Mqtt\Subscribe\Topic('test/test', 0, function (\PhpMqqt\Mqtt\Subscribe\Topic $topic, string $message) {
+//    var_dump($topic->name(), $message);
+//}));
+//
+//$subscribe->listen();
+
+
+//return;
+
 $x = new \PhpMqqt\PhpMqqt();
 
 //require_once "phpMQTT.php";
@@ -34,30 +46,30 @@ $x->connect(true/*, [
     'retain' => 1
 
 ]*/);
-
-$x->publish('test/x', "message " . time());
+//
+//$x->publish('test/x', "message " . time());
 //
 //die;
 
-//$tops = [
-//    'test/test' => [
-//        'qos' => 0,
-//        'function' => function ($topic, $msg) {
-//            echo PHP_EOL;
-//            var_dump($topic);
-//            echo PHP_EOL;
-//            var_dump($msg);
-//            echo PHP_EOL;
-//            echo PHP_EOL;
-//        }
-//    ]
-//];
+$tops = [
+    'test/test' => [
+        'qos' => 0,
+        'function' => function ($topic, $msg) {
+            echo PHP_EOL;
+            var_dump($topic);
+            echo PHP_EOL;
+            var_dump($msg);
+            echo PHP_EOL;
+            echo PHP_EOL;
+        }
+    ]
+];
 //
-//$x->subscribe($tops,0);
+$x->subscribe($tops,0);
 //
-//while ($x->proc()) {
-//
-//}
+while ($x->proc()) {
+
+}
 
 
 echo 'Here';

@@ -6,10 +6,10 @@
  * Time: 22:50
  */
 
-namespace PhpMqqt\Mqtt;
-
+namespace PhpMqqt\Mqtt\Publish;
 
 use PhpMqqt\Content\Payload;
+use PhpMqqt\Mqtt\AbstractMqtt;
 
 /**
  * Class Publish
@@ -17,11 +17,6 @@ use PhpMqqt\Content\Payload;
  */
 class Publish extends AbstractMqtt
 {
-    /**
-     * @var int
-     */
-    protected $messageId = 0;
-
     /**
      * @param string $topic
      * @param string $content
@@ -31,8 +26,6 @@ class Publish extends AbstractMqtt
      */
     public function publish(string $topic, string $content, int $qos = 0, int $retain = 0)
     {
-        $this->connect();
-
         $load = new Payload();
         $load->convertPush($topic);
 

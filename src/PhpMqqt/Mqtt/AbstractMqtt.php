@@ -20,9 +20,9 @@ use PhpMqqt\Mqtt\Will\Will;
  */
 abstract class AbstractMqtt
 {
-//    /**
-//     * @var Socket
-//     */
+    /**
+     * @var Socket
+     */
     protected $socket;
     /**
      * @var string
@@ -53,6 +53,10 @@ abstract class AbstractMqtt
      */
     protected $lastActivity;
 
+    /**
+     * @var int
+     */
+    protected $messageId = 0;
 
     /**
      * AbstractMqtt constructor.
@@ -64,15 +68,17 @@ abstract class AbstractMqtt
      * @param string|null $user
      * @param string|null $pass
      */
-    public function __construct(Socket $socket, string $clientId, int $keepAlive = 60, bool $clean = true, Will $will = null, string $user = null, string $pass = null)
+    public function __construct(Socket $socket, string $clientId, int $keepAlive = 10, bool $clean = true, Will $will = null, string $user = null, string $pass = null)
     {
-//        $this->socket = $socket;
+        $this->socket = $socket;
         $this->clientId = $clientId;
         $this->keepAlive = $keepAlive;
         $this->clean = $clean;
         $this->will = $will;
         $this->user = $user;
         $this->pass = $pass;
+
+        $this->connect();
     }
 
     /**
@@ -80,18 +86,28 @@ abstract class AbstractMqtt
      */
     protected function connect()
     {
-//        $this->socket->initSocket();
-
-
-        $this->socket = stream_socket_client('tcp' . '://' . '127.0.0.1' . ':' . 1883,
-            $errorNumber,
-            $errorMessage,
-            3,
-            4
-        );
+        $this->socket->initSocket();
         $this->sendConnectPacket();
-
     }
+
+    /**
+     * @return $this
+     */
+    public function autoReconnect()
+    {
+        while (true) {
+            try {
+                $this->connect();
+                return $this;
+            } catch (\Exception $e) {
+                var_dump($e->getMessage());
+            }
+            sleep(10);
+        }
+
+        return $this;
+    }
+
 
     /**
      * @return $this
@@ -99,139 +115,56 @@ abstract class AbstractMqtt
      */
     protected function sendConnectPacket()
     {
-//        $head = new VariableHeader();
-//
-//        $head->push($this->clean ? 2 : 0);
-//
-//        if ($this->will) {
-//            $head->push(4);
-//            $head->push($this->will->qos() << 3);
-//            if ($this->will->retain()) {
-//                $head->push(32);
-//            }
-//        }
-//
-//        $head->push($this->user ? 128 : 0, 0);
-//        $head->push($this->pass ? 64 : 0, 0);
-//
-//        $load = new Payload();
-//        $load->push([chr(0x00), chr(0x06), chr(0x4d), chr(0x51), chr(0x49), chr(0x73), chr(0x64), chr(0x70), chr(0x03)]);
-//
-//        $load->push(chr($head->getContent()));
-//
-//
-//        $load->push([
-//            chr($this->keepAlive >> 8),
-//            chr($this->keepAlive & 0xff)
-//        ])->convertPush($this->clientId);
-//
-//        if ($this->will) {
-//            dd('here');
-//            $load->convertPush([
-//                $this->will->topic(),
-//                $this->will->content()
-//            ]);
-//        }
-//
-//        if ($this->user) {
-//            dd('here2');
-//
-//            $load->convertPush($this->user);
-//        }
-//
-//        if ($this->pass) {
-//            dd('here3');
-//            $load->convertPush($this->pass);
-//        }
-//
-//
-//        $loadHeader = chr(0x10) . chr($load->getLength());
+        $head = new VariableHeader();
 
-//        fwrite($this->socket->socket,$loadHeader,2);
-//        fwrite($this->socket->socket,$load->getContent());
+        $head->push($this->clean ? 2 : 0);
 
-        $varHead = new VariableHeader();
-        $varHead->push($this->clean ? 2 : 0);
-        if (!is_null($this->will)) {
-
-            $varHead->push(4);
-            $varHead->push($this->will['qos'] << 3);
-            if ($this->will['retain']) {
-                $varHead->push(32);
+        if ($this->will) {
+            $head->push(4);
+            $head->push($this->will->qos() << 3);
+            if ($this->will->retain()) {
+                $head->push(32);
             }
         }
 
-        $varHead->push($this->user ? 128 : 0);
-        $varHead->push($this->user ? 64 : 0);
+        $head->push($this->user ? 128 : 0, 0);
+        $head->push($this->pass ? 64 : 0, 0);
 
-        $payload = new Payload();
+        $load = new Payload();
+        $load->push([chr(0x00), chr(0x06), chr(0x4d), chr(0x51), chr(0x49), chr(0x73), chr(0x64), chr(0x70), chr(0x03)]);
 
-        $payload->push([
-            chr(0x00),
-            chr(0x06),
-            chr(0x4d),
-            chr(0x51),
-            chr(0x49),
-            chr(0x73),
-            chr(0x64),
-            chr(0x70),
-            chr(0x03)
-        ]);
+        $load->push(chr($head->getContent()));
 
 
-        $payload->push(chr($varHead->getContent()));
-
-        $payload->push([
+        $load->push([
             chr($this->keepAlive >> 8),
-            chr($this->keepAlive & 0xff),
+            chr($this->keepAlive & 0xff)
         ])->convertPush($this->clientId);
 
-
-        if ($this->will != NULL) {
-            $payload->convertPush([
-                $this->will['topic'],
-                $this->will['content']
+        if ($this->will) {
+            $load->convertPush([
+                $this->will->topic(),
+                $this->will->content()
             ]);
-
         }
 
-        if ($this->user || $this->pass) {
-            $payload->convertPush([
-                $this->user,
-                $this->pass
-            ]);
-
+        if ($this->user) {
+            $load->convertPush($this->user);
         }
 
-        $payloadHeader = chr(0x10) . chr($payload->getLength());
-//        dd($payloadHeader);
-//        dd($this->socket);
-
-        fwrite($this->socket, $payloadHeader, 2);
-
-        fwrite($this->socket, $payload->getContent());
-
-//        $this->socket->write($loadHeader, 2)
-//            ->write($load->getContent());
-
-        $string = "";
-        $togo = 4;
-
-        while (!feof($this->socket) && $togo > 0) {
-            $fread = fread($this->socket, $togo);
-            $string .= $fread;
-            $togo = 4 - strlen($string);
-
+        if ($this->pass) {
+            $load->convertPush($this->pass);
         }
 
 
+        $loadHeader = chr(0x10) . chr($load->getLength());
 
-//        $response = $this->socket->read(4);
+        $this->socket->write($loadHeader, 2)
+            ->write($load->getContent());
 
-        $response = $string;
+        $response = $this->socket->read(4);
 
         if (!(ord($response{0}) >> 4 == 2 && $response{3} == chr(0))) {
-            var_dump('here');
 
             throw new \Exception("Connection to broker failed!");
         }
@@ -240,4 +173,11 @@ abstract class AbstractMqtt
 
         return $this;
     }
+
+    protected function ping()
+    {
+        $head = chr(0xc0) . chr(0x00);
+        $this->socket->write($head, 2);
+    }
+
 }
