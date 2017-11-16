@@ -1,17 +1,17 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: tkagnus
+ * User: tikagnus
  * Date: 15/11/2017
  * Time: 21:37
  */
 
-namespace PhpMqqt\Mqtt\Subscribe;
+namespace MqqtPhp\Mqtt\Publish;
 
 
 /**
  * Class Topic
- * @package PhpMqqt\Mqtt\Subscribe
+ * @package MqqtPhp\Mqtt\Publish
  */
 class Topic
 {
@@ -23,22 +23,16 @@ class Topic
      * @var int
      */
     protected $qos = 0;
-    /**
-     * @var callable
-     */
-    protected $callable;
 
     /**
      * Topic constructor.
      * @param string $name
      * @param int $qos
-     * @param callable $callable
      */
-    public function __construct(string $name, int $qos = 0,$callable)
+    public function __construct(string $name, int $qos = 0)
     {
         $this->name = $name;
         $this->qos = $qos;
-        $this->callable = $callable;
     }
 
     /**
@@ -56,13 +50,4 @@ class Topic
     {
         return $this->qos;
     }
-
-    /**
-     * @return callable
-     */
-    public function callable()
-    {
-        return $this->callable;
-    }
-
 }

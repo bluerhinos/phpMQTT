@@ -1,33 +1,33 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: tkagnus
+ * User: tikagnus
  * Date: 14/11/2017
  * Time: 22:50
  */
 
-namespace PhpMqqt\Mqtt\Publish;
+namespace MqqtPhp\Mqtt\Publish;
 
-use PhpMqqt\Content\Payload;
-use PhpMqqt\Mqtt\AbstractMqtt;
+use MqqtPhp\Content\Payload;
+use MqqtPhp\Mqtt\AbstractMqtt;
 
 /**
  * Class Publish
- * @package PhpMqqt\Mqtt
+ * @package MqqtPhp\Mqtt
  */
 class Publish extends AbstractMqtt
 {
     /**
-     * @param string $topic
+     * @param Topic $topic
      * @param string $content
      * @param int $qos
      * @param int $retain
      * @return $this
      */
-    public function publish(string $topic, string $content, int $qos = 0, int $retain = 0)
+    public function publish(Topic $topic, string $content, int $qos = 0, int $retain = 0)
     {
         $load = new Payload();
-        $load->convertPush($topic);
+        $load->convertPush($topic->name());
 
         if ($qos) {
             $id = $this->messageId++;

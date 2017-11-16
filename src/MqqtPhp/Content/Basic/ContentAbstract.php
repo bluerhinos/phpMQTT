@@ -1,29 +1,20 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: tkagnus
+ * User: tikagnus
  * Date: 14/11/2017
  * Time: 20:34
  */
 
-namespace PhpMqqt\Content\Basic;
+namespace MqqtPhp\Content\Basic;
 
-
 /**
  * Class ContentAbstract
- * @package PhpMqqt\Content\Basic
- */
-/**
- * Class ContentAbstract
- * @package PhpMqqt\Content\Basic
- */
-/**
- * Class ContentAbstract
- * @package PhpMqqt\Content\Basic
+ * @package MqqtPhp\Content\Basic
  */
 class ContentAbstract implements ContentInterface
 {
-    CONST OPERATOR = '';
+    CONST OPERATOR = '+';
 
     /**
      * @var string
@@ -62,9 +53,11 @@ class ContentAbstract implements ContentInterface
         if (!is_array($items)) {
             $items = [$items];
         }
+
         foreach ($items as $item) {
             $this->convert($item);
         }
+
         return $this;
     }
 
@@ -107,10 +100,8 @@ class ContentAbstract implements ContentInterface
     {
         $buff = "";
         do {
-
             $digit = $this->length % 128;
             $len = $this->length >> 7;
-            // if there are more digits to encode, set the top bit of this digit
             if ($len > 0)
                 $digit = ($digit | 0x80);
             $buff .= chr($digit);
@@ -134,6 +125,7 @@ class ContentAbstract implements ContentInterface
             default:
 
         }
+
         return $this;
     }
 

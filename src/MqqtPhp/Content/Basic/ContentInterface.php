@@ -1,16 +1,16 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: tkagnus
+ * User: tikagnus
  * Date: 14/11/2017
  * Time: 20:31
  */
 
-namespace PhpMqqt\Content\Basic;
+namespace MqqtPhp\Content\Basic;
 
 /**
  * Interface ContentInterface
- * @package PhpMqqt\Content
+ * @package MqqtPhp\Content
  */
 interface ContentInterface
 {

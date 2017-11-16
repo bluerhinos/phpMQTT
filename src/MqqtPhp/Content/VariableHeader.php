@@ -1,14 +1,14 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: tkagnus
+ * User: tikagnus
  * Date: 14/11/2017
  * Time: 20:20
  */
 
-namespace PhpMqqt\Content;
+namespace MqqtPhp\Content;
 
-use PhpMqqt\Content\Basic\ContentAbstract;
+use MqqtPhp\Content\Basic\ContentAbstract;
 
 class VariableHeader extends ContentAbstract
 {

@@ -1,18 +1,16 @@
 <?php
 
-require("../phpMQTT.php");
 
-$server = "mqtt.example.com";     // change if necessary
-$port = 1883;                     // change if necessary
-$username = "";                   // set your username
-$password = "";                   // set your password
+require_once __DIR__ . "/../vendor/autoload.php";
+
 $client_id = "phpMQTT-publisher"; // make sure this is unique for connecting to sever - you could use uniqid()
 
-$mqtt = new phpMQTT($server, $port, $client_id);
+$socket = new \MqqtPhp\Mqtt\Socket\Socket();
 
-if ($mqtt->connect(true, NULL, $username, $password)) {
-	$mqtt->publish("bluerhinos/phpMQTT/examples/publishtest", "Hello World! at " . date("r"), 0);
-	$mqtt->close();
-} else {
-    echo "Time out!\n";
-}
+$publish = new \MqqtPhp\Mqtt\Publish\Publish($socket, $client_id);
+
+$publish->publish(new \MqqtPhp\Mqtt\Publish\Topic('test'), 'Some random message' . uniqid())
+    ->publish(new \MqqtPhp\Mqtt\Publish\Topic('test/test'), 'Some another random message' . uniqid());
+
+
+$publish->close();

@@ -1,21 +1,21 @@
 {
-    "name": "tikagnu/phpmqtt",
-    "description": "Simple MQTT Class - FORK",
+    "name": "tikagnu/mqqtphp",
+    "description": "Mqqt Php Client",
     "license": "BSD",
     "type": "library",
     "authors": [
         {
-            "name": "Andrew Milsted",
-            "email": "andrew@bluerhinos.co.uk"
+            "name": "Bogdan TICA",
+            "email": "tica.bogdan@yahoo.ro"
         }
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=5.4"
+        "php": ">=7.1"
     },
     "autoload": {
         "psr-4": {
-            "PhpMqqt\\": "src/PhpMqqt"
+            "MqqtPhp\\": "src/MqqtPhp"
         }
     }
 }
