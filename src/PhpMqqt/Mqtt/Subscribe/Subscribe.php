@@ -6,14 +6,14 @@
  * Time: 22:50
  */
 
-namespace MqqtPhp\Mqtt\Subscribe;
+namespace PhpMqqt\Mqtt\Subscribe;
 
-use MqqtPhp\Content\Payload;
-use MqqtPhp\Mqtt\AbstractMqtt;
+use PhpMqqt\Content\Payload;
+use PhpMqqt\Mqtt\AbstractMqtt;
 
 /**
  * Class Publish
- * @package MqqtPhp\Mqtt
+ * @package PhpMqqt\Mqtt
  */
 class Subscribe extends AbstractMqtt
 {

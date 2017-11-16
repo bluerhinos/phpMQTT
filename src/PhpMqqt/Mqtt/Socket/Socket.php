@@ -6,12 +6,12 @@
  * Time: 22:14
  */
 
-namespace MqqtPhp\Mqtt\Socket;
+namespace PhpMqqt\Mqtt\Socket;
 
 
 /**
  * Class Socket
- * @package MqqtPhp\Mqtt\Socket
+ * @package PhpMqqt\Mqtt\Socket
  */
 class Socket
 {

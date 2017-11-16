@@ -6,9 +6,9 @@
  * Time: 20:20
  */
 
-namespace MqqtPhp\Content;
+namespace PhpMqqt\Content;
 
-use MqqtPhp\Content\Basic\ContentAbstract;
+use PhpMqqt\Content\Basic\ContentAbstract;
 
 class VariableHeader extends ContentAbstract
 {

@@ -6,11 +6,11 @@
  * Time: 20:34
  */
 
-namespace MqqtPhp\Content\Basic;
+namespace PhpMqqt\Content\Basic;
 
 /**
  * Class ContentAbstract
- * @package MqqtPhp\Content\Basic
+ * @package PhpMqqt\Content\Basic
  */
 class ContentAbstract implements ContentInterface
 {

@@ -6,13 +6,13 @@
  * Time: 20:11
  */
 
-namespace MqqtPhp\Mqtt\Will;
+namespace PhpMqqt\Mqtt\Will;
 
-use MqqtPhp\Mqtt\Subscribe\Topic;
+use PhpMqqt\Mqtt\Subscribe\Topic;
 
 /**
  * Class Will
- * @package MqqtPhp\Mqtt\Will
+ * @package PhpMqqt\Mqtt\Will
  */
 class Will
 {

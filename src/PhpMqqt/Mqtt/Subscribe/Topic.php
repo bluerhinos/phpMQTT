@@ -6,14 +6,14 @@
  * Time: 21:37
  */
 
-namespace MqqtPhp\Mqtt\Publish;
+namespace PhpMqqt\Mqtt\Subscribe;
 
 
 /**
  * Class Topic
- * @package MqqtPhp\Mqtt\Publish
+ * @package PhpMqqt\Mqtt\Subscribe
  */
-class Topic
+class Topic extends \PhpMqqt\Mqtt\Publish\Topic
 {
     /**
      * @var string
@@ -23,16 +23,21 @@ class Topic
      * @var int
      */
     protected $qos = 0;
+    /**
+     * @var Callable
+     */
+    protected $callable;
 
     /**
      * Topic constructor.
      * @param string $name
      * @param int $qos
+     * @param Callable $callable
      */
-    public function __construct(string $name, int $qos = 0)
+    public function __construct(string $name, int $qos = 0, Callable $callable = null)
     {
-        $this->name = $name;
-        $this->qos = $qos;
+        parent::__construct($name, $qos);
+        $this->callable = $callable;
     }
 
     /**
@@ -50,4 +55,13 @@ class Topic
     {
         return $this->qos;
     }
+
+    /**
+     * @return callable
+     */
+    public function callable()
+    {
+        return $this->callable;
+    }
+
 }

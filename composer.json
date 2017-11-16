@@ -1,9 +1,13 @@
 {
-    "name": "tikagnu/mqqtphp",
+    "name": "tikagnus/PhpMqqt",
     "description": "Mqqt Php Client",
     "license": "BSD",
     "type": "library",
     "authors": [
+        {
+            "name": "Andrew Milsted",
+            "email": "andrew@bluerhinos.co.uk"
+        },
         {
             "name": "Bogdan TICA",
             "email": "tica.bogdan@yahoo.ro"
@@ -15,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "MqqtPhp\\": "src/MqqtPhp"
+            "PhpMqqt\\": "src/PhpMqqt"
         }
     }
 }

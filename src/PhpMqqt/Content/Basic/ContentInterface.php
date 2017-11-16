@@ -6,11 +6,11 @@
  * Time: 20:31
  */
 
-namespace MqqtPhp\Content\Basic;
+namespace PhpMqqt\Content\Basic;
 
 /**
  * Interface ContentInterface
- * @package MqqtPhp\Content
+ * @package PhpMqqt\Content
  */
 interface ContentInterface
 {

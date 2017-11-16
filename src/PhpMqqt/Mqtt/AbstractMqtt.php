@@ -6,16 +6,16 @@
  * Time: 22:13
  */
 
-namespace MqqtPhp\Mqtt;
+namespace PhpMqqt\Mqtt;
 
-use MqqtPhp\Content\Payload;
-use MqqtPhp\Content\VariableHeader;
-use MqqtPhp\Mqtt\Socket\Socket;
-use MqqtPhp\Mqtt\Will\Will;
+use PhpMqqt\Content\Payload;
+use PhpMqqt\Content\VariableHeader;
+use PhpMqqt\Mqtt\Socket\Socket;
+use PhpMqqt\Mqtt\Will\Will;
 
 /**
  * Class AbstractMqtt
- * @package MqqtPhp\Mqtt
+ * @package PhpMqqt\Mqtt
  */
 abstract class AbstractMqtt
 {
