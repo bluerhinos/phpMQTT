@@ -49,6 +49,12 @@ class phpMQTT {
 	public $will;				/* stores the will of the client */
 	private $username;			/* stores username */
 	private $password;			/* stores password */
+    
+    private $timeout               = 60;
+    private $force_ip_version      = false;
+    private $force_ip_version_type = 4;
+    private $encryption_enabled    = false;
+    private $stream_crypto_type    = STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
 
 	public $cafile;
 
@@ -70,7 +76,59 @@ class phpMQTT {
 		}
 		return true;
 	}
-
+    
+    /**
+     * Use a TLS encrypted connection, with official CA signed server certificate (must be in trust store of php).
+     * No self signed certificates supported.
+     * @todo implemt for connections with ca file
+     * @param bool $enabled
+     * @param int  $stream_crypto_type stream crypto constants, e.g. tls1.2: STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT
+     */
+    public function set_encryption(bool $enabled, int $stream_crypto_type = STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT)
+    {
+        $this->encryption_enabled = $enabled;
+        $this->stream_crypto_type = $stream_crypto_type;
+    }
+    
+    /**
+     * @param int $timeout timeout for connection [seconds]
+     * @throws \InvalidArgumentException
+     */
+    public function set_timeout(int $timeout)
+    {
+        if ($timeout <= 0) {
+            throw new \InvalidArgumentException('Timeout must be positive.');
+        }
+        $this->timeout = $timeout;
+    }
+    
+    /**
+     * Only required if the DNS of a MQTT server returns IPv4 and IPv6 but the server offers only one ip version
+     * Should be NEVER the case in a productive environment!!!
+     * @param int $ip_version valid values: IPv4: 4, IPv6: 6
+     * @throws \InvalidArgumentException
+     */
+    public function set_force_ip_version(bool $enabled, int $ip_version)
+    {
+        $this->force_ip_version = $enabled;
+        if (!($enabled === true && ($ip_version === 4 || $ip_version === 6))) {
+            throw new \InvalidArgumentException('No valid value configured.');
+        }
+        $this->force_ip_version_type = $ip_version;
+    }
+    
+    /**
+     * @return array    e.g.
+     * [protocol] => TLSv1.2
+     * [cipher_name] => AES256-GCM-SHA384
+     * [cipher_bits] => 256
+     * [cipher_version] => TLSv1/SSLv3
+     */
+    public function get_encryption_meta_data(): array
+    {
+        return stream_get_meta_data($this->socket)['crypto'] ?? [];
+    }
+    
 	/* connects to the broker 
 		inputs: $clean: should the client send a clean session flag */
 	function connect($clean = true, $will = NULL, $username = NULL, $password = NULL){
@@ -85,10 +143,38 @@ class phpMQTT {
 				"verify_peer_name" => true,
 				"cafile" => $this->cafile
 				]]);
-			$this->socket = stream_socket_client("tls://" . $this->address . ":" . $this->port, $errno, $errstr, 60, STREAM_CLIENT_CONNECT, $socketContext);
-		} else {
-			$this->socket = stream_socket_client("tcp://" . $this->address . ":" . $this->port, $errno, $errstr, 60, STREAM_CLIENT_CONNECT);
-		}
+            $this->socket = stream_socket_client('ssl://' . $this->address . ':' . $this->port, $errno, $errstr, $this->timeout, STREAM_CLIENT_CONNECT, $socketContext);
+        } else {
+            $socketContext = stream_context_get_default();
+            
+            // force a ip connection type, IPv4 or IPv6
+            if ($this->force_ip_version === true) {
+                if ($this->force_ip_version_type === 4) {
+                    $socketContext = stream_context_create(
+                        ['socket' => [
+                            'bindto' => '0.0.0.0:0',
+                        ]]
+                    );
+                } else {
+                    $socketContext = stream_context_create(
+                        ['socket' => [
+                            'bindto' => '[0::0]:0',
+                        ]]
+                    );
+                }
+            }
+            
+            // connect to the server
+            $this->socket = stream_socket_client('tcp://' . $this->address . ':' . $this->port, $errno, $errstr, $this->timeout, STREAM_CLIENT_CONNECT, $socketContext);
+            
+            // establish encryption
+            if ($this->encryption_enabled === true) {
+                $successful_crypt_enabled = stream_socket_enable_crypto($this->socket, true, $this->stream_crypto_type);
+                if ($successful_crypt_enabled !== true) {
+                    throw new \RuntimeException('Could not establish a secure connection to MQTT server, maybe cipher not supported or old certificate?');
+                }
+            }
+        }
 
 		if (!$this->socket ) {
 		    if($this->debug) error_log("stream_socket_create() $errno, $errstr \n");
