@@ -105,7 +105,8 @@ class phpMQTT {
     /**
      * Only required if the DNS of a MQTT server returns IPv4 and IPv6 but the server offers only one ip version
      * Should be NEVER the case in a productive environment!!!
-     * @param int $ip_version valid values: IPv4: 4, IPv6: 6
+     * @param bool $enabled
+     * @param int  $ip_version valid values: IPv4: 4, IPv6: 6
      * @throws \InvalidArgumentException
      */
     public function set_force_ip_version(bool $enabled, int $ip_version)
