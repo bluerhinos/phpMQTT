@@ -63,6 +63,11 @@ class phpMQTT {
 		$this->cafile = $cafile;
 	}
 
+	function getsocket()
+	{
+		return $this->socket;
+	}
+
 	function connect_auto($clean = true, $will = NULL, $username = NULL, $password = NULL){
 		while($this->connect($clean, $will, $username, $password)==false){
 			sleep(10);
@@ -272,6 +277,18 @@ class phpMQTT {
 		fwrite($this->socket, $buffer, $i);
 
 	}
+	
+	/* publishwhenchanged: only publish if value has changed */
+	function publishwhenchanged($topic, $msg, $qos = 0, $retain = 0)
+	{
+        	static $topichistory = array();
+        	if (!isset($topichistory[$topic]) || ($topichistory[$topic] != $msg))
+        	{
+                	$this->publish($topic, $msg, $qos, $retain);
+                	$topichistory[$topic] = $msg;
+		}
+	}
+
 
 	/* message: processes a recieved topic */
 	function message($msg){
