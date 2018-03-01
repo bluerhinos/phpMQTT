@@ -38,10 +38,11 @@ class phpMQTT {
 
 	private $socket; 			/* holds the socket	*/
 	private $msgid = 1;			/* counter for message id */
-	public $keepalive = 0;		/* default keepalive timmer */
-	public $timesinceping;		/* host unix time, used to detect disconects */
+	private $keepalive = 10;		/* default keepalive timmer */
+	private $timesinceping;		/* host unix time, used to detect disconects */
+	private $pingstatus = 0;		/* To prevent ping sent to often */
 	public $topics = array(); 	/* used to store currently subscribed topics */
-	public $debug = false;		/* should output debug messages */
+	public $debug = true;		/* should output debug messages */
 	public $address;			/* broker address */
 	public $port;				/* broker port */
 	public $clientid;			/* client id sent to brocker */
@@ -101,6 +102,8 @@ class phpMQTT {
 
 		stream_set_timeout($this->socket, 5);
 		stream_set_blocking($this->socket, 0);
+		
+		$this->pingstatus = 0;
 
 		$i = 0;
 		$buffer = "";
@@ -132,8 +135,8 @@ class phpMQTT {
 		$buffer .= chr($var); $i++;
 
 		//Keep alive
-		$buffer .= chr($this->keepalive >> 8); $i++;
-		$buffer .= chr($this->keepalive & 0xff); $i++;
+		$buffer .= chr(($this->keepalive * 2) >> 8); $i++;
+		$buffer .= chr(($this->keepalive * 2) & 0xff); $i++;
 
 		$buffer .= $this->strwritestring($this->clientid,$i);
 
@@ -360,26 +363,37 @@ class phpMQTT {
 						case 3:
 							$this->message($string);
 						break;
+						case 13:
+							if ($this->debug) echo "PING: Reply received!\n";
+							$this->timesinceping = time();
+							$this->pingstatus = 0;
+						break;
 					}
 
-					$this->timesinceping = time();
 				}
 			}
 
-/*			if($this->timesinceping < (time() - $this->keepalive )){
-				if($this->debug) echo "not found something so ping\n";
-				$this->ping();	
+			if(($this->pingstatus == 0) && ($this->timesinceping < (time() - $this->keepalive))){
+				if($this->debug) echo "PING: First request send!\n";
+				$this->ping();
+				$this->pingstatus = 1;
+			}
+
+			if(($this->pingstatus == 1) && ($this->timesinceping < (time() - ($this->keepalive * 1.5)))){
+				if($this->debug) echo "PING: Second request send!\n";
+				$this->ping();
+				$this->pingstatus = 2;
 			}
 			
 
-			if($this->timesinceping<(time()-($this->keepalive*2))){
-				if($this->debug) echo "not seen a package in a while, disconnecting\n";
+			if($this->timesinceping<(time()-($this->keepalive * 2))){
+				if($this->debug) echo "PING: Timeout! Reply not received in time, reconnecting\n";
 				fclose($this->socket);
 				$this->connect_auto(false);
 				if(count($this->topics))
 					$this->subscribe($this->topics);
 			}
-*/
+
 		}
 		return 1;
 	}
