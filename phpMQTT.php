@@ -38,7 +38,7 @@ class phpMQTT {
 
 	private $socket; 			/* holds the socket	*/
 	private $msgid = 1;			/* counter for message id */
-	public $keepalive = 10;		/* default keepalive timmer */
+	public $keepalive = 0;		/* default keepalive timmer */
 	public $timesinceping;		/* host unix time, used to detect disconects */
 	public $topics = array(); 	/* used to store currently subscribed topics */
 	public $debug = false;		/* should output debug messages */
@@ -366,7 +366,7 @@ class phpMQTT {
 				}
 			}
 
-			if($this->timesinceping < (time() - $this->keepalive )){
+/*			if($this->timesinceping < (time() - $this->keepalive )){
 				if($this->debug) echo "not found something so ping\n";
 				$this->ping();	
 			}
@@ -379,7 +379,7 @@ class phpMQTT {
 				if(count($this->topics))
 					$this->subscribe($this->topics);
 			}
-
+*/
 		}
 		return 1;
 	}
