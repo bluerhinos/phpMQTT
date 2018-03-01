@@ -48,6 +48,7 @@ class phpMQTT {
 	public $will;				/* stores the will of the client */
 	private $username;			/* stores username */
 	private $password;			/* stores password */
+	private $topichistory = array();	/* stores topics with there values to see if value has changed before sending again */
 
 	public $cafile;
 
@@ -281,11 +282,10 @@ class phpMQTT {
 	/* publishwhenchanged: only publish if value has changed */
 	function publishwhenchanged($topic, $msg, $qos = 0, $retain = 0)
 	{
-        	static $topichistory = array();
-        	if (!isset($topichistory[$topic]) || ($topichistory[$topic] != $msg))
+        	if (!isset($this->topichistory[$topic]) || ($this->topichistory[$topic] != $msg))
         	{
                 	$this->publish($topic, $msg, $qos, $retain);
-                	$topichistory[$topic] = $msg;
+                	$this->topichistory[$topic] = $msg;
 		}
 	}
 
