@@ -204,32 +204,27 @@ class phpMQTT {
 
 	/* subscribe: subscribes to topics */
 	function subscribe($topics, $qos = 0){
-		$i = 0;
-		$buffer = "";
-		$id = $this->msgid;
-		$buffer .= chr($id >> 8);  $i++;
-		$buffer .= chr($id % 256);  $i++;
-
 		foreach($topics as $key => $topic){
+			$i = 0;
+			$buffer = "";
+			$id = $this->msgid;
+			$buffer .= chr($id >> 8);  $i++;
+			$buffer .= chr($id % 256);  $i++;
 			$buffer .= $this->strwritestring($key,$i);
 			$buffer .= chr($topic["qos"]);  $i++;
 			$this->topics[$key] = $topic; 
+		
+			$cmd = 0x80;
+			//$qos
+			$cmd +=	($qos << 1);
+
+			$head = chr($cmd);
+			$head .= chr($i);
+		
+			fwrite($this->socket, $head, 2);
+			fwrite($this->socket, $buffer, $i);
+			fflush($this->socket);
 		}
-
-		$cmd = 0x80;
-		//$qos
-		$cmd +=	($qos << 1);
-
-
-		$head = chr($cmd);
-		$head .= chr($i);
-		
-		fwrite($this->socket, $head, 2);
-		fwrite($this->socket, $buffer, $i);
-		$string = $this->read(2);
-		
-		$bytes = ord(substr($string,1,1));
-		$string = $this->read($bytes);
 	}
 
 	/* ping: sends a keep alive ping */
@@ -303,7 +298,7 @@ class phpMQTT {
 	/* publishwhenchanged: only publish if value has changed */
 	function publishwhenchanged($topic, $msg, $qos = 0, $retain = 0)
 	{
-        	if (!isset($this->topichistory[$topic]) || ($this->topichistory[$topic] != $msg))
+        	if (!isset($this->topichistory[$topic]) || ($this->topichistory[$topic]["msg"] != $msg))
         	{
                 	$this->publish($topic, $msg, $qos, $retain);
 		}
