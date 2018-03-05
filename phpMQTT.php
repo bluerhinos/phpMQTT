@@ -204,18 +204,18 @@ class phpMQTT {
 
 	/* subscribe: subscribes to topics */
 	function subscribe($topics, $qos = 0){
+		foreach($topics as $key => $topic){
+		//var_dump($key);
 		$i = 0;
 		$buffer = "";
 		$id = $this->msgid;
 		$buffer .= chr($id >> 8);  $i++;
 		$buffer .= chr($id % 256);  $i++;
 
-		foreach($topics as $key => $topic){
 			$buffer .= $this->strwritestring($key,$i);
 			$buffer .= chr($topic["qos"]);  $i++;
 			$this->topics[$key] = $topic; 
-		}
-
+		
 		$cmd = 0x80;
 		//$qos
 		$cmd +=	($qos << 1);
@@ -226,10 +226,8 @@ class phpMQTT {
 		
 		fwrite($this->socket, $head, 2);
 		fwrite($this->socket, $buffer, $i);
-		$string = $this->read(2);
-		
-		$bytes = ord(substr($string,1,1));
-		$string = $this->read($bytes);
+		fflush($this->socket);
+		}
 	}
 
 	/* ping: sends a keep alive ping */
