@@ -172,7 +172,7 @@ class phpMQTT {
 		}
 
 		$this->timesinceping = time();
-
+		$this->topichistory = array();
 		return true;
 	}
 
