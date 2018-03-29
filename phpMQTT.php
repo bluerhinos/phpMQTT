@@ -241,6 +241,7 @@ class phpMQTT {
 
 	/* disconnect: sends a proper disconect cmd */
 	function disconnect(){
+			$topichistory = array();
 			$head = " ";
 			$head{0} = chr(0xe0);		
 			$head{1} = chr(0x00);
