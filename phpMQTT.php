@@ -42,7 +42,7 @@ class phpMQTT {
 	private $timesinceping;		/* host unix time, used to detect disconects */
 	private $pingstatus = 0;		/* To prevent ping sent to often */
 	public $topics = array(); 	/* used to store currently subscribed topics */
-	public $debug = true;		/* should output debug messages */
+	public $debug = false;		/* should output debug messages */
 	public $address;			/* broker address */
 	public $port;				/* broker port */
 	public $clientid;			/* client id sent to brocker */
