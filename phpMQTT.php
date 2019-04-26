@@ -191,26 +191,27 @@ class phpMQTT {
 	/* subscribe: subscribes to topics */
 	function subscribe($topics, $qos = 0){
                 if($this->debug) echo "subscription:\n";
-	  	$id = $this->msgid;
-    		foreach($topics as $key => $topic)
-    		{
-  		  $i = 0;
-	  	  $buffer = "";
-		  $buffer .= chr($id >> 8);  $i++;
-		  $buffer .= chr($id % 256);  $i++;
-		  $buffer .= $this->strwritestring($key,$i);
+	        $id = $this->msgid;
+                foreach($topics as $key => $topic)
+                {
+                  $i = 0;
+                  $buffer = "";
+                  $buffer .= chr($id >> 8);  $i++;
+                  $buffer .= chr($id % 256);  $i++;
+                  $buffer .= $this->strwritestring($key,$i);
 
-      		  if($this->debug) echo "-". substr($buffer, 2). "\n";
+                  if($this->debug) echo "-". substr($buffer, 2). "\n";
       
-		  $buffer .= chr($topic["qos"]);  $i++;
-		  $this->topics[$key] = $topic; 
-      		  $cmd = 0x82;  
-		  $cmd +=	($qos << 1);
-		  $head = chr($cmd);
-		  $head .= chr($i);
-		  fwrite($this->socket, $head, 2);
-    		  fwrite($this->socket, $buffer, $i); 
-      		  $id++;
+                  $buffer .= chr($topic["qos"]);  $i++;
+                  $this->topics[$key] = $topic; 
+                  $cmd = 0x82;  
+                  $cmd += ($qos << 1);
+                  $head = chr($cmd);
+                  $head .= chr($i);
+                  fwrite($this->socket, $head, 2);
+                  fwrite($this->socket, $buffer, $i); 
+                  $id++;
+                }
 	}
 
 	/* ping: sends a keep alive ping */
