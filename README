@@ -1,11 +1,7 @@
-Blue Rhinos Consulting
-Andrew Milsted | andrew@bluerhinos.co.uk | http://www.bluerhinos.co.uk | @bluerhinos
+Subcribe changes --
 
-A simple php class to connect/publish/subscribe to an MQTT broker
-
-Documentation: Coming Soon
-Source: http://github.com/bluerhinos/phpMQTT
-
-To install via Composer
------------------------
-`composer require bluerhinos/phpmqtt`
+You only need use 3 statements
+examples files to know what inputs should you use
+$this->connect(params)
+$msg = $this->subscribe(params)
+$this->close()

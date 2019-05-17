@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5e67b6e-8869-49ed-af22-0608058a99d8" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/examples/publish.php" beforeDir="false" afterPath="$PROJECT_DIR$/examples/publish.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/subscribe.php" beforeDir="false" afterPath="$PROJECT_DIR$/examples/subscribe.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/phpMQTT.php" beforeDir="false" afterPath="$PROJECT_DIR$/phpMQTT.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README" beforeDir="false" afterPath="$PROJECT_DIR$/README" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,9 +15,13 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README">
-          <provider selected="true" editor-type-id="text-editor" />
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="102">
+              <caret line="6" column="14" selection-start-line="6" selection-start-column="14" selection-end-line="6" selection-end-column="14" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -48,7 +50,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/examples/publish.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="255">
@@ -68,6 +70,7 @@
         <option value="$PROJECT_DIR$/phpMQTT.php" />
         <option value="$PROJECT_DIR$/examples/subscribe.php" />
         <option value="$PROJECT_DIR$/examples/publish.php" />
+        <option value="$PROJECT_DIR$/README" />
       </list>
     </option>
   </component>
@@ -129,12 +132,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1558118093857</updated>
-      <workItem from="1558118095099" duration="339000" />
+      <workItem from="1558118095099" duration="765000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="339000" />
+    <option name="totallyTimeSpent" value="765000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -165,9 +168,6 @@
     <option name="version" value="1" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/README">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/phpMQTT.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="447">
@@ -192,6 +192,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
           <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="14" selection-start-line="6" selection-start-column="14" selection-end-line="6" selection-end-column="14" />
         </state>
       </provider>
     </entry>
