@@ -53,6 +53,23 @@ class phpMQTT
 
     public $cafile;
 
+    protected static $known_commands = [
+        1 => 'CONNECT',
+        2 => 'CONNACK',
+        3 => 'PUBLISH',
+        4 => 'PUBACK',
+        5 => 'PUBREC',
+        6 => 'PUBREL',
+        7 => 'PUBCOMP',
+        8 => 'SUBSCRIBE',
+        9 => 'SUBACK',
+        10 => 'UNSUBSCRIBE',
+        11 => 'UNSUBACK',
+        12 => 'PINGREQ',
+        13 => 'PINGRESP',
+        14 => 'DISCONNECT'
+    ];
+
     /**
      * phpMQTT constructor.
      *
@@ -135,9 +152,7 @@ class phpMQTT
         }
 
         if (!$this->socket) {
-            if ($this->debug) {
-                error_log("stream_socket_create() $errno, $errstr \n");
-            }
+            $this->_errorMessage("stream_socket_create() $errno, $errstr");
             return false;
         }
 
@@ -226,11 +241,9 @@ class phpMQTT
         $string = $this->read(4);
 
         if (ord($string{0}) >> 4 === 2 && $string{3} === chr(0)) {
-            if ($this->debug) {
-                echo "Connected to Broker\n";
-            }
+            $this->_debugMessage('Connected to Broker');
         } else {
-            error_log(
+            $this->_errorMessage(
                 sprintf(
                     "Connection failed! (Error: 0x%02x 0x%02x)\n",
                     ord($string{0}),
@@ -247,6 +260,7 @@ class phpMQTT
 
     /**
      * Reads in so many bytes
+     *
      * @param int $int
      * @param bool $nb
      *
@@ -254,7 +268,6 @@ class phpMQTT
      */
     public function read($int = 8192, $nb = false)
     {
-
         $string = '';
         $togo = $int;
 
@@ -318,9 +331,7 @@ class phpMQTT
         $head .= chr(0x00);
         fwrite($this->socket, $head, 2);
         $this->timesinceping = time();
-        if ($this->debug) {
-            echo "ping sent\n";
-        }
+        $this->_debugMessage('ping sent');
     }
 
     /**
@@ -387,6 +398,7 @@ class phpMQTT
 
     /**
      * Writes a string to the socket
+     *
      * @param $buffer
      *
      * @return bool|int
@@ -405,6 +417,7 @@ class phpMQTT
 
     /**
      * Processes a received topic
+     *
      * @param $msg
      */
     public function message($msg): void
@@ -412,7 +425,7 @@ class phpMQTT
         $tlen = (ord($msg{0}) << 8) + ord($msg{1});
         $topic = substr($msg, 2, $tlen);
         $msg = substr($msg, ($tlen + 2));
-        $found = 0;
+        $found = false;
         foreach ($this->topics as $key => $top) {
             if (preg_match(
                 '/^' . str_replace(
@@ -436,13 +449,13 @@ class phpMQTT
             )) {
                 if (is_callable($top['function'])) {
                     call_user_func($top['function'], $topic, $msg);
-                    $found = 1;
+                    $found = true;
                 }
             }
         }
 
-        if ($this->debug && !$found) {
-            echo "msg recieved but no match in subscriptions\n";
+        if ($found === false) {
+            $this->_debugMessage('msg received but no match in subscriptions');
         }
     }
 
@@ -458,15 +471,9 @@ class phpMQTT
     public function proc(bool $loop = true): int
     {
         if (1) {
-            $sockets = [$this->socket];
-            $w = $e = null;
-            $cmd = 0;
 
-            //$byte = fgetc($this->socket);
             if (feof($this->socket)) {
-                if ($this->debug) {
-                    echo "eof receive going to reconnect for good measure\n";
-                }
+                $this->_debugMessage('eof receive going to reconnect for good measure');
                 fclose($this->socket);
                 $this->connect_auto(false);
                 if (count($this->topics)) {
@@ -482,9 +489,13 @@ class phpMQTT
                 }
             } else {
                 $cmd = (int)(ord($byte) / 16);
-                if ($this->debug) {
-                    echo "Recevid: $cmd\n";
-                }
+                $this->_debugMessage(
+                    sprintf(
+                        'Received CMD: %d (%s)',
+                        $cmd ,
+                    isset(static::$known_commands[$cmd]) === true ? static::$known_commands[$cmd] : 'Unknown'
+                    )
+                );
 
                 $multiplier = 1;
                 $value = 0;
@@ -494,32 +505,27 @@ class phpMQTT
                     $multiplier *= 128;
                 } while (($digit & 128) !== 0);
 
-                if ($this->debug) {
-                    echo "Fetching: $value\n";
-                }
+                $this->_debugMessage('Fetching: ' . $value . ' bytes');
 
-                $string = $value ? $this->read($value) : '';
+                $string = $value > 0 ? $this->read($value) : '';
 
                 if ($cmd) {
                     switch ($cmd) {
-                        case 3:
+                        case 3: //Publish MSG
                             $this->message($string);
                             break;
+
                     }
                 }
             }
 
             if ($this->timesinceping < (time() - $this->keepalive)) {
-                if ($this->debug) {
-                    echo "not found something so ping\n";
-                }
+                $this->_debugMessage('not had something in a while so ping');
                 $this->ping();
             }
 
             if ($this->timesinceping < (time() - ($this->keepalive * 2))) {
-                if ($this->debug) {
-                    echo "not seen a package in a while, disconnecting\n";
-                }
+                $this->_debugMessage('not seen a packet in a while, disconnecting/reconnecting');
                 fclose($this->socket);
                 $this->connect_auto(false);
                 if (count($this->topics)) {
@@ -532,6 +538,7 @@ class phpMQTT
 
     /**
      * Gets the length of a msg, (and increments $i)
+     *
      * @param $msg
      * @param $i
      *
@@ -591,6 +598,7 @@ class phpMQTT
 
     /**
      * Prints a sting out character by character
+     *
      * @param $string
      */
     public function printstr($string): void
@@ -605,5 +613,23 @@ class phpMQTT
             }
             printf("%4d: %08b : 0x%02x : %s \n", $j, $num, $num, $chr);
         }
+    }
+
+    /**
+     * @param string $message
+     */
+    protected function _debugMessage(string $message): void
+    {
+        if ($this->debug === true) {
+            echo date('r: ') . $message . PHP_EOL;
+        }
+    }
+
+    /**
+     * @param string $message
+     */
+    protected function _errorMessage(string $message): void
+    {
+        error_log('Error:' . $message);
     }
 }
