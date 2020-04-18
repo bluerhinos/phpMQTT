@@ -92,15 +92,15 @@ class phpMQTT
         if ($this->cafile) {
             $socketContext = stream_context_create(
                 [
-                    "ssl" => [
-                        "verify_peer_name" => true,
-                        "cafile" => $this->cafile
+                    'ssl' => [
+                        'verify_peer_name' => true,
+                        'cafile' => $this->cafile
                     ]
                 ]
             );
-            $this->socket = stream_socket_client("tls://" . $this->address . ":" . $this->port, $errno, $errstr, 60, STREAM_CLIENT_CONNECT, $socketContext);
+            $this->socket = stream_socket_client('tls://' . $this->address . ':' . $this->port, $errno, $errstr, 60, STREAM_CLIENT_CONNECT, $socketContext);
         } else {
-            $this->socket = stream_socket_client("tcp://" . $this->address . ":" . $this->port, $errno, $errstr, 60, STREAM_CLIENT_CONNECT);
+            $this->socket = stream_socket_client('tcp://' . $this->address . ':' . $this->port, $errno, $errstr, 60, STREAM_CLIENT_CONNECT);
         }
 
         if (!$this->socket) {
@@ -114,7 +114,7 @@ class phpMQTT
         stream_set_blocking($this->socket, 0);
 
         $i = 0;
-        $buffer = "";
+        $buffer = '';
 
         $buffer .= chr(0x00);
         $i++; // Length MSB
@@ -219,7 +219,7 @@ class phpMQTT
     {
         //	print_r(socket_get_status($this->socket));
 
-        $string = "";
+        $string = '';
         $togo = $int;
 
         if ($nb) {
@@ -239,7 +239,7 @@ class phpMQTT
     function subscribe($topics, $qos = 0)
     {
         $i = 0;
-        $buffer = "";
+        $buffer = '';
         $id = $this->msgid;
         $buffer .= chr($id >> 8);
         $i++;
@@ -248,7 +248,7 @@ class phpMQTT
 
         foreach ($topics as $key => $topic) {
             $buffer .= $this->strwritestring($key, $i);
-            $buffer .= chr($topic["qos"]);
+            $buffer .= chr($topic['qos']);
             $i++;
             $this->topics[$key] = $topic;
         }
@@ -271,7 +271,7 @@ class phpMQTT
     /* ping: sends a keep alive ping */
     function ping()
     {
-        $head = " ";
+        $head = ' ';
         $head = chr(0xc0);
         $head .= chr(0x00);
         fwrite($this->socket, $head, 2);
@@ -284,7 +284,7 @@ class phpMQTT
     /* disconnect: sends a proper disconect cmd */
     function disconnect()
     {
-        $head = " ";
+        $head = ' ';
         $head{0} = chr(0xe0);
         $head{1} = chr(0x00);
         fwrite($this->socket, $head, 2);
@@ -301,7 +301,7 @@ class phpMQTT
     function publish($topic, $content, $qos = 0, $retain = 0)
     {
         $i = 0;
-        $buffer = "";
+        $buffer = '';
 
         $buffer .= $this->strwritestring($topic, $i);
 
@@ -318,7 +318,7 @@ class phpMQTT
         $buffer .= $content;
         $i += strlen($content);
 
-        $head = " ";
+        $head = ' ';
         $cmd = 0x30;
         if ($qos) {
             $cmd += $qos << 1;
@@ -354,23 +354,23 @@ class phpMQTT
         $found = 0;
         foreach ($this->topics as $key => $top) {
             if (preg_match(
-                "/^" . str_replace(
-                    "#",
-                    ".*",
+                '/^' . str_replace(
+                    '#',
+                    '.*',
                     str_replace(
-                        "+",
+                        '+',
                         "[^\/]*",
                         str_replace(
-                            "/",
+                            '/',
                             "\/",
                             str_replace(
-                                "$",
+                                '$',
                                 '\$',
                                 $key
                             )
                         )
                     )
-                ) . "$/",
+                ) . '$/',
                 $topic
             )) {
                 if (is_callable($top['function'])) {
@@ -482,7 +482,7 @@ class phpMQTT
     /* setmsglength: */
     function setmsglength($len)
     {
-        $string = "";
+        $string = '';
         do {
             $digit = $len % 128;
             $len = $len >> 7;
@@ -498,7 +498,7 @@ class phpMQTT
     /* strwritestring: writes a string to a buffer */
     function strwritestring($str, &$i)
     {
-        $ret = " ";
+        $ret = ' ';
         $len = strlen($str);
         $msb = $len >> 8;
         $lsb = $len % 256;
@@ -517,7 +517,7 @@ class phpMQTT
             if ($num > 31) {
                 $chr = $string{$j};
             } else {
-                $chr = " ";
+                $chr = ' ';
             }
             printf("%4d: %08b : 0x%02x : %s \n", $j, $num, $num, $chr);
         }
