@@ -206,12 +206,11 @@ class phpMQTT {
 		//$qos
 		$cmd +=	($qos << 1);
 
-
 		$head = chr($cmd);
-		$head .= chr($i);
-		
-		fwrite($this->socket, $head, 2);
-		fwrite($this->socket, $buffer, $i);
+        $head .= $this->setmsglength($i);
+        fwrite($this->socket, $head, strlen($head));
+
+        $this->_fwrite($buffer);
 		$string = $this->read(2);
 		
 		$bytes = ord(substr($string,1,1));
@@ -270,16 +269,20 @@ class phpMQTT {
 		$head .= $this->setmsglength($i);
 
 		fwrite($this->socket, $head, strlen($head));
+        $this->_fwrite($buffer);
 
-        $buffer_length = strlen($buffer);
-		for ($written = 0; $written < $buffer_length; $written += $fwrite) {
-		    $fwrite = fwrite($this->socket, substr($buffer, $written));
-		    if ($fwrite === false) {
-		        break;
-		    }
-		}
 
 	}
+
+	protected function _fwrite($buffer) {
+        $buffer_length = strlen($buffer);
+        for ($written = 0; $written < $buffer_length; $written += $fwrite) {
+            $fwrite = fwrite($this->socket, substr($buffer, $written));
+            if ($fwrite === false) {
+                return false;
+            }
+        }
+    }
 
 	/* message: processes a recieved topic */
 	function message($msg){
