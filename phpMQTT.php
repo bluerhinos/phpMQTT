@@ -53,13 +53,13 @@ class phpMQTT
 
     public $cafile;
 
-    function __construct($address, $port, $clientid, $cafile = null)
+    public function __construct($address, $port, $clientid, $cafile = null)
     {
         $this->broker($address, $port, $clientid, $cafile);
     }
 
     /* sets the broker details */
-    function broker($address, $port, $clientid, $cafile = null)
+    public function broker($address, $port, $clientid, $cafile = null)
     {
         $this->address = $address;
         $this->port = $port;
@@ -67,7 +67,7 @@ class phpMQTT
         $this->cafile = $cafile;
     }
 
-    function connect_auto($clean = true, $will = null, $username = null, $password = null)
+    public function connect_auto($clean = true, $will = null, $username = null, $password = null)
     {
         while ($this->connect($clean, $will, $username, $password) == false) {
             sleep(10);
@@ -77,7 +77,7 @@ class phpMQTT
 
     /* connects to the broker
         inputs: $clean: should the client send a clean session flag */
-    function connect($clean = true, $will = null, $username = null, $password = null)
+    public function connect($clean = true, $will = null, $username = null, $password = null)
     {
         if ($will) {
             $this->will = $will;
@@ -215,7 +215,7 @@ class phpMQTT
     }
 
     /* read: reads in so many bytes */
-    function read($int = 8192, $nb = false)
+    public function read($int = 8192, $nb = false)
     {
         //	print_r(socket_get_status($this->socket));
 
@@ -236,7 +236,7 @@ class phpMQTT
     }
 
     /* subscribe: subscribes to topics */
-    function subscribe($topics, $qos = 0)
+    public function subscribe($topics, $qos = 0)
     {
         $i = 0;
         $buffer = '';
@@ -269,7 +269,7 @@ class phpMQTT
     }
 
     /* ping: sends a keep alive ping */
-    function ping()
+    public function ping()
     {
         $head = ' ';
         $head = chr(0xc0);
@@ -282,7 +282,7 @@ class phpMQTT
     }
 
     /* disconnect: sends a proper disconect cmd */
-    function disconnect()
+    public function disconnect()
     {
         $head = ' ';
         $head{0} = chr(0xe0);
@@ -291,14 +291,14 @@ class phpMQTT
     }
 
     /* close: sends a proper disconect, then closes the socket */
-    function close()
+    public function close()
     {
         $this->disconnect();
         stream_socket_shutdown($this->socket, STREAM_SHUT_WR);
     }
 
     /* publish: publishes $content on a $topic */
-    function publish($topic, $content, $qos = 0, $retain = 0)
+    public function publish($topic, $content, $qos = 0, $retain = 0)
     {
         $i = 0;
         $buffer = '';
@@ -346,7 +346,7 @@ class phpMQTT
     }
 
     /* message: processes a recieved topic */
-    function message($msg)
+    public function message($msg)
     {
         $tlen = (ord($msg{0}) << 8) + ord($msg{1});
         $topic = substr($msg, 2, $tlen);
@@ -387,7 +387,7 @@ class phpMQTT
 
     /* proc: the processing loop for an "allways on" client
         set true when you are doing other stuff in the loop good for watching something else at the same time */
-    function proc($loop = true)
+    public function proc($loop = true)
     {
         if (1) {
             $sockets = [$this->socket];
@@ -465,7 +465,7 @@ class phpMQTT
     }
 
     /* getmsglength: */
-    function getmsglength(&$msg, &$i)
+    public function getmsglength(&$msg, &$i)
     {
         $multiplier = 1;
         $value = 0;
@@ -480,7 +480,7 @@ class phpMQTT
     }
 
     /* setmsglength: */
-    function setmsglength($len)
+    public function setmsglength($len)
     {
         $string = '';
         do {
@@ -496,7 +496,7 @@ class phpMQTT
     }
 
     /* strwritestring: writes a string to a buffer */
-    function strwritestring($str, &$i)
+    public function strwritestring($str, &$i)
     {
         $ret = ' ';
         $len = strlen($str);
@@ -509,7 +509,7 @@ class phpMQTT
         return $ret;
     }
 
-    function printstr($string)
+    public function printstr($string)
     {
         $strlen = strlen($string);
         for ($j = 0; $j < $strlen; $j++) {
