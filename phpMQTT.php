@@ -38,8 +38,8 @@ namespace Bluerhinos;
 
 class phpMQTT
 {
-    private $socket;            /* holds the socket	*/
-    private $msgid = 1;            /* counter for message id */
+    protected $socket;            /* holds the socket	*/
+    protected $msgid = 1;            /* counter for message id */
     public $keepalive = 10;        /* default keepalive timmer */
     public $timesinceping;        /* host unix time, used to detect disconects */
     public $topics = [];    /* used to store currently subscribed topics */
@@ -48,18 +48,33 @@ class phpMQTT
     public $port;                /* broker port */
     public $clientid;            /* client id sent to brocker */
     public $will;                /* stores the will of the client */
-    private $username;            /* stores username */
-    private $password;            /* stores password */
+    protected $username;            /* stores username */
+    protected $password;            /* stores password */
 
     public $cafile;
 
+    /**
+     * phpMQTT constructor.
+     *
+     * @param $address
+     * @param $port
+     * @param $clientid
+     * @param null $cafile
+     */
     public function __construct($address, $port, $clientid, $cafile = null)
     {
         $this->broker($address, $port, $clientid, $cafile);
     }
 
-    /* sets the broker details */
-    public function broker($address, $port, $clientid, $cafile = null)
+    /**
+     * Sets the broker details
+     *
+     * @param $address
+     * @param $port
+     * @param $clientid
+     * @param null $cafile
+     */
+    public function broker($address, $port, $clientid, $cafile = null): void
     {
         $this->address = $address;
         $this->port = $port;
@@ -67,17 +82,33 @@ class phpMQTT
         $this->cafile = $cafile;
     }
 
-    public function connect_auto($clean = true, $will = null, $username = null, $password = null)
+    /**
+     * Will try and connect, if fails it will sleep 10s and try again, this will enable the script to recover from a network outage
+     *
+     * @param bool $clean - should the client send a clean session flag
+     * @param null $will
+     * @param null $username
+     * @param null $password
+     *
+     * @return bool
+     */
+    public function connect_auto($clean = true, $will = null, $username = null, $password = null): bool
     {
-        while ($this->connect($clean, $will, $username, $password) == false) {
+        while ($this->connect($clean, $will, $username, $password) === false) {
             sleep(10);
         }
         return true;
     }
 
-    /* connects to the broker
-        inputs: $clean: should the client send a clean session flag */
-    public function connect($clean = true, $will = null, $username = null, $password = null)
+    /**
+     * @param bool $clean - should the client send a clean session flag
+     * @param null $will
+     * @param null $username
+     * @param null $password
+     *
+     * @return bool
+     */
+    public function connect($clean = true, $will = null, $username = null, $password = null): bool
     {
         if ($will) {
             $this->will = $will;
@@ -138,7 +169,7 @@ class phpMQTT
         }
 
         //Add will info to header
-        if ($this->will != null) {
+        if ($this->will !== null) {
             $var += 4; // Set will flag
             $var += ($this->will['qos'] << 3); //Set will qos
             if ($this->will['retain']) {
@@ -146,10 +177,10 @@ class phpMQTT
             } //Set will retain
         }
 
-        if ($this->username != null) {
+        if ($this->username !== null) {
             $var += 128;
         }    //Add username to header
-        if ($this->password != null) {
+        if ($this->password !== null) {
             $var += 64;
         }    //Add password to header
 
@@ -165,15 +196,15 @@ class phpMQTT
         $buffer .= $this->strwritestring($this->clientid, $i);
 
         //Adding will to payload
-        if ($this->will != null) {
+        if ($this->will !== null) {
             $buffer .= $this->strwritestring($this->will['topic'], $i);
             $buffer .= $this->strwritestring($this->will['content'], $i);
         }
 
-        if ($this->username) {
+        if ($this->username !== null) {
             $buffer .= $this->strwritestring($this->username, $i);
         }
-        if ($this->password) {
+        if ($this->password !== null) {
             $buffer .= $this->strwritestring($this->password, $i);
         }
 
@@ -181,10 +212,10 @@ class phpMQTT
 
         while ($i > 0) {
             $encodedByte = $i % 128;
-            $i = $i / 128;
+            $i /= 128;
             $i = (int)$i;
             if ($i > 0) {
-                $encodedByte = $encodedByte | 128;
+                $encodedByte |= 128;
             }
             $head .= chr($encodedByte);
         }
@@ -194,7 +225,7 @@ class phpMQTT
 
         $string = $this->read(4);
 
-        if (ord($string{0}) >> 4 == 2 && $string{3} == chr(0)) {
+        if (ord($string{0}) >> 4 === 2 && $string{3} === chr(0)) {
             if ($this->debug) {
                 echo "Connected to Broker\n";
             }
@@ -214,10 +245,15 @@ class phpMQTT
         return true;
     }
 
-    /* read: reads in so many bytes */
+    /**
+     * Reads in so many bytes
+     * @param int $int
+     * @param bool $nb
+     *
+     * @return false|string
+     */
     public function read($int = 8192, $nb = false)
     {
-        //	print_r(socket_get_status($this->socket));
 
         $string = '';
         $togo = $int;
@@ -235,8 +271,13 @@ class phpMQTT
         return $string;
     }
 
-    /* subscribe: subscribes to topics */
-    public function subscribe($topics, $qos = 0)
+    /**
+     * subscribes to topics
+     *
+     * @param $topics
+     * @param int $qos
+     */
+    public function subscribe($topics, $qos = 0): void
     {
         $i = 0;
         $buffer = '';
@@ -265,13 +306,14 @@ class phpMQTT
         $string = $this->read(2);
 
         $bytes = ord(substr($string, 1, 1));
-        $string = $this->read($bytes);
+        $this->read($bytes);
     }
 
-    /* ping: sends a keep alive ping */
-    public function ping()
+    /**
+     * Sends a keep alive ping
+     */
+    public function ping(): void
     {
-        $head = ' ';
         $head = chr(0xc0);
         $head .= chr(0x00);
         fwrite($this->socket, $head, 2);
@@ -281,8 +323,10 @@ class phpMQTT
         }
     }
 
-    /* disconnect: sends a proper disconect cmd */
-    public function disconnect()
+    /**
+     *  sends a proper disconnect cmd
+     */
+    public function disconnect(): void
     {
         $head = ' ';
         $head{0} = chr(0xe0);
@@ -290,22 +334,29 @@ class phpMQTT
         fwrite($this->socket, $head, 2);
     }
 
-    /* close: sends a proper disconect, then closes the socket */
-    public function close()
+    /**
+     * Sends a proper disconnect, then closes the socket
+     */
+    public function close(): void
     {
         $this->disconnect();
         stream_socket_shutdown($this->socket, STREAM_SHUT_WR);
     }
 
-    /* publish: publishes $content on a $topic */
-    public function publish($topic, $content, $qos = 0, $retain = 0)
+    /**
+     * Publishes $content on a $topic
+     *
+     * @param $topic
+     * @param $content
+     * @param int $qos
+     * @param int $retain
+     */
+    public function publish($topic, $content, $qos = 0, $retain = 0): void
     {
         $i = 0;
         $buffer = '';
 
         $buffer .= $this->strwritestring($topic, $i);
-
-        //$buffer .= $this->strwritestring($content,$i);
 
         if ($qos) {
             $id = $this->msgid++;
@@ -324,7 +375,7 @@ class phpMQTT
             $cmd += $qos << 1;
         }
         if ($retain) {
-            $cmd += 1;
+            ++$cmd;
         }
 
         $head{0} = chr($cmd);
@@ -334,6 +385,12 @@ class phpMQTT
         $this->_fwrite($buffer);
     }
 
+    /**
+     * Writes a string to the socket
+     * @param $buffer
+     *
+     * @return bool|int
+     */
     protected function _fwrite($buffer)
     {
         $buffer_length = strlen($buffer);
@@ -343,10 +400,14 @@ class phpMQTT
                 return false;
             }
         }
+        return $buffer_length;
     }
 
-    /* message: processes a recieved topic */
-    public function message($msg)
+    /**
+     * Processes a received topic
+     * @param $msg
+     */
+    public function message($msg): void
     {
         $tlen = (ord($msg{0}) << 8) + ord($msg{1});
         $topic = substr($msg, 2, $tlen);
@@ -385,9 +446,16 @@ class phpMQTT
         }
     }
 
-    /* proc: the processing loop for an "allways on" client
-        set true when you are doing other stuff in the loop good for watching something else at the same time */
-    public function proc($loop = true)
+    /**
+     * The processing loop for an "always on" client
+     * set true when you are doing other stuff in the loop good for
+     * watching something else at the same time
+     *
+     * @param bool $loop
+     *
+     * @return int
+     */
+    public function proc(bool $loop = true): int
     {
         if (1) {
             $sockets = [$this->socket];
@@ -408,8 +476,8 @@ class phpMQTT
 
             $byte = $this->read(1, true);
 
-            if (!strlen($byte)) {
-                if ($loop) {
+            if ((string)$byte === '') {
+                if ($loop === true) {
                     usleep(100000);
                 }
             } else {
@@ -424,15 +492,13 @@ class phpMQTT
                     $digit = ord($this->read(1));
                     $value += ($digit & 127) * $multiplier;
                     $multiplier *= 128;
-                } while (($digit & 128) != 0);
+                } while (($digit & 128) !== 0);
 
                 if ($this->debug) {
                     echo "Fetching: $value\n";
                 }
 
-                if ($value) {
-                    $string = $this->read($value);
-                }
+                $string = $value ? $this->read($value) : '';
 
                 if ($cmd) {
                     switch ($cmd) {
@@ -464,8 +530,14 @@ class phpMQTT
         return 1;
     }
 
-    /* getmsglength: */
-    public function getmsglength(&$msg, &$i)
+    /**
+     * Gets the length of a msg, (and increments $i)
+     * @param $msg
+     * @param $i
+     *
+     * @return float|int
+     */
+    protected function getmsglength(&$msg, &$i)
     {
         $multiplier = 1;
         $value = 0;
@@ -474,31 +546,39 @@ class phpMQTT
             $value += ($digit & 127) * $multiplier;
             $multiplier *= 128;
             $i++;
-        } while (($digit & 128) != 0);
+        } while (($digit & 128) !== 0);
 
         return $value;
     }
 
-    /* setmsglength: */
-    public function setmsglength($len)
+    /**
+     * @param $len
+     *
+     * @return string
+     */
+    protected function setmsglength($len): string
     {
         $string = '';
         do {
             $digit = $len % 128;
-            $len = $len >> 7;
+            $len >>= 7;
             // if there are more digits to encode, set the top bit of this digit
             if ($len > 0) {
-                $digit = ($digit | 0x80);
+                $digit |= 0x80;
             }
             $string .= chr($digit);
         } while ($len > 0);
         return $string;
     }
 
-    /* strwritestring: writes a string to a buffer */
-    public function strwritestring($str, &$i)
+    /**
+     * @param $str
+     * @param $i
+     *
+     * @return string
+     */
+    protected function strwritestring($str, &$i): string
     {
-        $ret = ' ';
         $len = strlen($str);
         $msb = $len >> 8;
         $lsb = $len % 256;
@@ -509,7 +589,11 @@ class phpMQTT
         return $ret;
     }
 
-    public function printstr($string)
+    /**
+     * Prints a sting out character by character
+     * @param $string
+     */
+    public function printstr($string): void
     {
         $strlen = strlen($string);
         for ($j = 0; $j < $strlen; $j++) {
