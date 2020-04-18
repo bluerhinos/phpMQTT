@@ -229,6 +229,7 @@ class phpMQTT {
 			$head = chr(0xc0);		
 			$head .= chr(0x00);
 			fwrite($this->socket, $head, 2);
+			$this->timesinceping = time();
 			if($this->debug) echo "ping sent\n";
 	}
 
@@ -361,8 +362,6 @@ class phpMQTT {
 							$this->message($string);
 						break;
 					}
-
-					$this->timesinceping = time();
 				}
 			}
 
