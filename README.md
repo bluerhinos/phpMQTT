@@ -12,4 +12,4 @@ Source: http://github.com/bluerhinos/phpMQTT
 
 To install via Composer
 -----------------------
-`composer require bluerhinos/phpmqtt`
+`composer require bluerhinos/phpmqtt=@dev`
