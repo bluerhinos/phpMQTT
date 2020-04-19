@@ -385,9 +385,9 @@ class phpMQTT
      * @param $topic
      * @param $content
      * @param int $qos
-     * @param int $retain
+     * @param bool $retain
      */
-    public function publish($topic, $content, $qos = 0, $retain = 0): void
+    public function publish($topic, $content, $qos = 0, $retain = false): void
     {
         $i = 0;
         $buffer = '';
@@ -410,7 +410,7 @@ class phpMQTT
         if ($qos) {
             $cmd += $qos << 1;
         }
-        if ($retain) {
+        if (empty($retain) === false) {
             ++$cmd;
         }
 
