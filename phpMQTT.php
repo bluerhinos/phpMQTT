@@ -52,7 +52,6 @@ class phpMQTT
     protected $password;            /* stores password */
 
     public $cafile;
-
     protected static $known_commands = [
         1 => 'CONNECT',
         2 => 'CONNACK',
@@ -285,6 +284,32 @@ class phpMQTT
     }
 
     /**
+     * Subscribes to a topic, wait for message and return it
+     *
+     * @param $topic
+     * @param $qos
+     *
+     * @return string
+     */
+    public function subscribeAndWaitForMessage($topic, $qos): string
+    {
+        $this->subscribe(
+            [
+                $topic => [
+                    'qos' => $qos,
+                    'function' => '__direct_return_message__'
+                ]
+            ]
+        );
+
+        do {
+            $return = $this->proc();
+        } while ($return === true);
+
+        return $return;
+    }
+
+    /**
      * subscribes to topics
      *
      * @param $topics
@@ -419,8 +444,10 @@ class phpMQTT
      * Processes a received topic
      *
      * @param $msg
+     *
+     * @retrun bool|string
      */
-    public function message($msg): void
+    public function message($msg)
     {
         $tlen = (ord($msg{0}) << 8) + ord($msg{1});
         $topic = substr($msg, 2, $tlen);
@@ -447,9 +474,14 @@ class phpMQTT
                 ) . '$/',
                 $topic
             )) {
+                if ($top['function'] === '__direct_return_message__') {
+                    return $msg;
+                }
+
                 if (is_callable($top['function'])) {
                     call_user_func($top['function'], $topic, $msg);
-                    $found = true;
+                } else {
+                    $this->_errorMessage('Message received on topic ' . $topic. ' but function is not callable.');
                 }
             }
         }
@@ -457,6 +489,8 @@ class phpMQTT
         if ($found === false) {
             $this->_debugMessage('msg received but no match in subscriptions');
         }
+
+        return $found;
     }
 
     /**
@@ -466,74 +500,74 @@ class phpMQTT
      *
      * @param bool $loop
      *
-     * @return int
+     * @return bool | string
      */
-    public function proc(bool $loop = true): int
+    public function proc(bool $loop = true)
     {
-        if (1) {
-
-            if (feof($this->socket)) {
-                $this->_debugMessage('eof receive going to reconnect for good measure');
-                fclose($this->socket);
-                $this->connect_auto(false);
-                if (count($this->topics)) {
-                    $this->subscribe($this->topics);
-                }
+        if (feof($this->socket)) {
+            $this->_debugMessage('eof receive going to reconnect for good measure');
+            fclose($this->socket);
+            $this->connect_auto(false);
+            if (count($this->topics)) {
+                $this->subscribe($this->topics);
             }
+        }
 
-            $byte = $this->read(1, true);
+        $byte = $this->read(1, true);
 
-            if ((string)$byte === '') {
-                if ($loop === true) {
-                    usleep(100000);
-                }
-            } else {
-                $cmd = (int)(ord($byte) / 16);
-                $this->_debugMessage(
-                    sprintf(
-                        'Received CMD: %d (%s)',
-                        $cmd ,
+        if ((string)$byte === '') {
+            if ($loop === true) {
+                usleep(100000);
+            }
+        } else {
+            $cmd = (int)(ord($byte) / 16);
+            $this->_debugMessage(
+                sprintf(
+                    'Received CMD: %d (%s)',
+                    $cmd,
                     isset(static::$known_commands[$cmd]) === true ? static::$known_commands[$cmd] : 'Unknown'
-                    )
-                );
+                )
+            );
 
-                $multiplier = 1;
-                $value = 0;
-                do {
-                    $digit = ord($this->read(1));
-                    $value += ($digit & 127) * $multiplier;
-                    $multiplier *= 128;
-                } while (($digit & 128) !== 0);
+            $multiplier = 1;
+            $value = 0;
+            do {
+                $digit = ord($this->read(1));
+                $value += ($digit & 127) * $multiplier;
+                $multiplier *= 128;
+            } while (($digit & 128) !== 0);
 
-                $this->_debugMessage('Fetching: ' . $value . ' bytes');
+            $this->_debugMessage('Fetching: ' . $value . ' bytes');
 
-                $string = $value > 0 ? $this->read($value) : '';
+            $string = $value > 0 ? $this->read($value) : '';
 
-                if ($cmd) {
-                    switch ($cmd) {
-                        case 3: //Publish MSG
-                            $this->message($string);
-                            break;
-
-                    }
-                }
-            }
-
-            if ($this->timesinceping < (time() - $this->keepalive)) {
-                $this->_debugMessage('not had something in a while so ping');
-                $this->ping();
-            }
-
-            if ($this->timesinceping < (time() - ($this->keepalive * 2))) {
-                $this->_debugMessage('not seen a packet in a while, disconnecting/reconnecting');
-                fclose($this->socket);
-                $this->connect_auto(false);
-                if (count($this->topics)) {
-                    $this->subscribe($this->topics);
+            if ($cmd) {
+                switch ($cmd) {
+                    case 3: //Publish MSG
+                        $return = $this->message($string);
+                        if (is_bool($return) === false) {
+                            return $return;
+                        }
+                        break;
                 }
             }
         }
-        return 1;
+
+        if ($this->timesinceping < (time() - $this->keepalive)) {
+            $this->_debugMessage('not had something in a while so ping');
+            $this->ping();
+        }
+
+        if ($this->timesinceping < (time() - ($this->keepalive * 2))) {
+            $this->_debugMessage('not seen a packet in a while, disconnecting/reconnecting');
+            fclose($this->socket);
+            $this->connect_auto(false);
+            if (count($this->topics)) {
+                $this->subscribe($this->topics);
+            }
+        }
+
+        return true;
     }
 
     /**
