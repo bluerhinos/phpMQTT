@@ -360,6 +360,21 @@ class phpMQTT
     }
 
     /**
+     * Sends a keep qos 1+ PUBACK
+     */
+    public function puback($mid): void
+    {
+        $head = chr(0x04);
+        $head .= chr(0x02);
+        fwrite($this->socket, $head, 2);
+        $this->timesinceping = time();
+        $buffer = chr($mid >> 8);
+        $buffer .= chr($mid % 256);
+        fwrite($this->socket, $buffer, 2);
+        $this->_debugMessage('PUBACK '.$mid);
+    }
+
+    /**
      *  sends a proper disconnect cmd
      */
     public function disconnect(): void
@@ -416,7 +431,8 @@ class phpMQTT
 
         $head{0} = chr($cmd);
         $head .= $this->setmsglength($i);
-
+        
+        $this->_debugMessage('msg id:'.$id.' = '. $content);
         fwrite($this->socket, $head, strlen($head));
         $this->_fwrite($buffer);
     }
@@ -453,6 +469,7 @@ class phpMQTT
         $topic = substr($msg, 2, $tlen);
         $msg = substr($msg, ($tlen + 2));
         $found = false;
+        $msg_id=0;
         foreach ($this->topics as $key => $top) {
             if (preg_match(
                 '/^' . str_replace(
@@ -474,22 +491,33 @@ class phpMQTT
                 ) . '$/',
                 $topic
             )) {
+                if ($top['qos'] > 0) {
+                    $msg_id = (ord($msg{0}) << 8) + ord($msg{1});
+                    $msg = substr($msg, 2, $tlen-2);
+                }
                 if ($top['function'] === '__direct_return_message__') {
+                    if($msg_id){
+                        $this->puback($msg_id);
+                        $this->_debugMessage("msg id:$msg_id PubBack");
+                    } 
                     return $msg;
                 }
-
                 if (is_callable($top['function'])) {
                     call_user_func($top['function'], $topic, $msg);
                 } else {
                     $this->_errorMessage('Message received on topic ' . $topic. ' but function is not callable.');
                 }
+                $found=true;
             }
         }
 
         if ($found === false) {
             $this->_debugMessage('msg received but no match in subscriptions');
         }
-
+        if($msg_id){
+            $this->puback($msg_id);
+            $this->_debugMessage("msg id:$msg_id PubBack");
+        } 
         return $found;
     }
 
