@@ -333,8 +333,6 @@ class phpMQTT
         }
 
         $cmd = 0x82;
-        //$qos
-        $cmd += ($qos << 1);
 
         $head = chr($cmd);
         $head .= $this->setmsglength($i);
