@@ -193,10 +193,11 @@ class phpMQTT
 
         if ($this->username !== null) {
             $var += 128;
+		
+            if ($this->password !== null) {
+                $var += 64;
+            }    //Add password to header, only if username is not null, per http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.pdf, line 525
         }    //Add username to header
-        if ($this->password !== null) {
-            $var += 64;
-        }    //Add password to header
 
         $buffer .= chr($var);
         $i++;
