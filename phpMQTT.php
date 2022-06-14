@@ -51,6 +51,7 @@ class phpMQTT
     protected $username;            /* stores username */
     protected $password;            /* stores password */
 
+    public $sslContextOptions;      /* null or an associative array */
     public $cafile;
     protected static $known_commands = [
         1 => 'CONNECT',
@@ -79,6 +80,7 @@ class phpMQTT
      */
     public function __construct($address, $port, $clientid, $cafile = null)
     {
+        $this->sslContextOptions = null;
         $this->broker($address, $port, $clientid, $cafile);
     }
 
@@ -96,6 +98,16 @@ class phpMQTT
         $this->port = $port;
         $this->clientid = $clientid;
         $this->cafile = $cafile;
+    }
+
+    /**
+     * Forces the usage of the "tls://..." protocol and sets the context options.
+     * 
+     * @param $options - associative array containing the options according to https://www.php.net/manual/en/context.ssl.php
+     */
+    public function setSslContextOptions($options): void
+    {
+        $this->sslContextOptions = $options;
     }
 
     /**
@@ -136,7 +148,11 @@ class phpMQTT
             $this->password = $password;
         }
 
-        if ($this->cafile) {
+        if (!is_null($this->sslContextOptions)) {
+            $socketContext = stream_context_create($this->sslContextOptions);
+            $this->socket = stream_socket_client('tls://' . $this->address . ':' . $this->port, $errno, $errstr, 60, STREAM_CLIENT_CONNECT, $socketContext);
+        }
+        elseif ($this->cafile) {
             $socketContext = stream_context_create(
                 [
                     'ssl' => [
