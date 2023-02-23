@@ -431,7 +431,13 @@ class phpMQTT
     protected function _fwrite($buffer)
     {
         $buffer_length = strlen($buffer);
+        $overflowcounter = 0;
         for ($written = 0; $written < $buffer_length; $written += $fwrite) {
+            $overflowcounter++ ;
+            if ($overflowcounter > ($buffer_length * 2)){
+              print "ERROR sending data in phpMQTT.php" . PHP_EOL;
+                return false;
+            }
             $fwrite = fwrite($this->socket, substr($buffer, $written));
             if ($fwrite === false) {
                 return false;
